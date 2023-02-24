@@ -1,0 +1,9 @@
+<ion-item *ngIf="message" [routerLink]="'/message/' + message.id" [detail]="false">
+  <ion-label class="ion-text-wrap">
+    <ion-note class="date">{{ message.date }}</ion-note>
+    <h2>{{ message.subject }}</h2>
+    <h3>{{ message.schoolName }}</h3>
+    <h3><ion-icon name="map"></ion-icon> {{ message.location }}</h3>
+    <p>{{ message.description }}</p>
+  </ion-label>
+  </ion-item>

@@ -1,0 +1,7 @@
+{
+  "name": "LewistonSchools",
+  "integrations": {
+    "capacitor": {}
+  },
+  "type": "angular"
+}

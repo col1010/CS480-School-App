@@ -1,0 +1,25 @@
+<ion-header [translucent]="true">
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-back-button [text]="getBackButtonText()" defaultHref="/"></ion-back-button>
+    </ion-buttons>
+  </ion-toolbar>
+</ion-header>
+
+<ion-content [fullscreen]="true" *ngIf="message">
+  <ion-item>
+    <ion-icon name="calendar"></ion-icon>
+    <ion-label class="ion-text-wrap">
+      <h2>{{ message.schoolName }}</h2>
+    </ion-label>
+  </ion-item>
+  
+  <div class="ion-padding">
+    <h1>{{ message.subject }}</h1>
+    <ion-note><ion-icon name="time"></ion-icon> {{ message.date }}</ion-note><br>
+    <ion-note><ion-icon name="map"></ion-icon> {{ message.location }}</ion-note>
+    <p>
+      {{ message.description }}
+    </p>
+  </div>
+</ion-content>
