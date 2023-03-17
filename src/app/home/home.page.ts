@@ -1,5 +1,6 @@
 import { Component } from '@angular/core';
 import { RefresherCustomEvent } from '@ionic/angular';
+import * as $ from 'jquery';
 
 import { DataService, Event } from '../services/data.service';
 
@@ -15,10 +16,19 @@ export class HomePage {
 
   constructor(private data: DataService) { }
 
-  refresh(ev: any) {
-    setTimeout(() => {
-      (ev as RefresherCustomEvent).detail.complete();
-    }, 3000);
+  // refresh(ev: any) {
+  //   setTimeout( async () => {
+      
+  //     (ev as RefresherCustomEvent).detail.complete();
+  //   }, 3000);
+  // }
+
+  handleRefresh(event: any) {
+    setTimeout(async () => {
+      this.eventList = await this.data.getEventList();
+      window.location.reload();
+      event.target.complete();
+    }, 2000);
   }
 
 

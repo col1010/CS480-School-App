@@ -31,6 +31,9 @@ export class DataService {
     var url = 'https://www.googleapis.com/calendar/v3/calendars/c24d93250c31d00077422e6da47cd4a0e5fc94680dad684d14fcf5e7fed2ba55@group.calendar.google.com/events';
       const params = {
         key: environment.calendarApiKey,
+        timeMin: new Date().toISOString(),
+        singleEvents: true,
+        orderBy: "startTime"
       }
 
       await axios.get(url, {params: params})
@@ -44,13 +47,22 @@ export class DataService {
           var tmpEvent = this.emptyEvent();
           tmpEvent.summary = event.summary;
           tmpEvent.calendarName = '';
-          tmpEvent.dateTime = event.start.dateTime;
+          if (event.start.dateTime === undefined) {
+            var d = new Date(event.start.date);
+            var dateString = d.getMonth() + 1 + "/" + d.getDate() + "/" + d.getFullYear();
+            tmpEvent.dateTime = dateString;
+          } else {
+            const d = new Date(event.start.dateTime);
+            const timeString = d.toLocaleTimeString([], {hour: 'numeric', minute:'2-digit'});
+            const dateString = d.getMonth() + 1 + "/" + d.getDate() + "/" + d.getFullYear();
+            tmpEvent.dateTime = dateString + ", " + timeString;
+          }
           tmpEvent.location = event.location;
           tmpEvent.description = event.description;
           tmpEvent.id = id++;
           this.eventList.push(tmpEvent);
         }
-        console.log(this.eventList);
+        //console.log(this.eventList);
       })
       .catch(error => {
         console.log(error);
