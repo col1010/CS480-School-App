@@ -3,5 +3,9 @@
   "integrations": {
     "capacitor": {}
   },
-  "type": "angular"
+  "type": "angular",
+  "proxies": [{
+    "path": "/api",
+    "proxyUrl": "https://calendar.google.com/calendar/ical/c24d93250c31d00077422e6da47cd4a0e5fc94680dad684d14fcf5e7fed2ba55@group.calendar.google.com/public/basic.ics"
+  }]
 }

@@ -6,20 +6,20 @@
   </ion-toolbar>
 </ion-header>
 
-<ion-content [fullscreen]="true" *ngIf="message">
+<ion-content [fullscreen]="true" *ngIf="event">
   <ion-item>
     <ion-icon name="calendar"></ion-icon>
     <ion-label class="ion-text-wrap">
-      <h2>{{ message.schoolName }}</h2>
+      <h2>{{ event.calendarName }}</h2>
     </ion-label>
   </ion-item>
   
   <div class="ion-padding">
-    <h1>{{ message.subject }}</h1>
-    <ion-note><ion-icon name="time"></ion-icon> {{ message.date }}</ion-note><br>
-    <ion-note><ion-icon name="map"></ion-icon> {{ message.location }}</ion-note>
+    <h1>{{ event.summary }}</h1>
+    <ion-note><ion-icon name="time"></ion-icon> {{ event.dateTime }}</ion-note><br>
+    <ion-note><ion-icon name="map"></ion-icon> {{ event.location }}</ion-note>
     <p>
-      {{ message.description }}
+      {{ event.description }}
     </p>
   </div>
 </ion-content>

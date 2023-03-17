@@ -19,7 +19,8 @@
     </ion-toolbar>
   </ion-header>
   
-  <ion-list>
-    <app-message *ngFor="let message of getMessages()" [message]="message"></app-message>
+  <ion-list id="eventListElement">
+    <app-event *ngFor="let event of eventList" [event]="event"></app-event>
+    <!-- <app-message *ngFor="let message of getMessages()" [message]="message"></app-message> -->
   </ion-list>
 </ion-content>

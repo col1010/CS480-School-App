@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 
-import { MessageComponentModule } from '../message/message.module';
+import { MessageComponentModule } from '../event/event.module';
 
 import { HomePage } from './home.page';
 

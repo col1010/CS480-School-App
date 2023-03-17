@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { RefresherCustomEvent } from '@ionic/angular';
 
-import { DataService, Message } from '../services/data.service';
+import { DataService, Event } from '../services/data.service';
 
 @Component({
   selector: 'app-home',
@@ -9,6 +9,10 @@ import { DataService, Message } from '../services/data.service';
   styleUrls: ['home.page.scss'],
 })
 export class HomePage {
+
+  eventList: any;
+  loaded = false;
+
   constructor(private data: DataService) { }
 
   refresh(ev: any) {
@@ -17,15 +21,12 @@ export class HomePage {
     }, 3000);
   }
 
-  getMessages() {
-    /*
-    var eventList: Message[] | undefined = undefined;
-    this.data.getMessages().then(res => {
-      eventList = res;
-    });
-    return eventList;
-    */
-   return this.data.getMessages();
+
+  async ionViewDidEnter() {
+    if (!this.loaded) {
+      this.eventList = await this.data.getEventList();
+      this.loaded = true;
+    }
   }
 
 }
