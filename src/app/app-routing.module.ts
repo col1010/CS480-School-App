@@ -7,7 +7,7 @@ const routes: Routes = [
     loadChildren: () => import('./home/home.module').then( m => m.HomePageModule)
   },
   {
-    path: 'event/:id',
+    path: 'calendar/:calendarId/event/:eventId',
     loadChildren: () => import('./view-event/view-event.module').then( m => m.ViewEventPageModule)
   },
   {

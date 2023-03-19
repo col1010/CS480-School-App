@@ -1,23 +1,24 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { DataService, Event } from '../services/data.service';
+import { Calendar, CalendarService, Event } from '../services/data.service';
 
 @Component({
-  selector: 'app-view-Event',
-  templateUrl: './view-Event.page.html',
-  styleUrls: ['./view-Event.page.scss'],
+  selector: 'app-view-event',
+  templateUrl: './view-event.page.html',
+  styleUrls: ['./view-event.page.scss'],
 })
 export class ViewEventPage implements OnInit {
   public event!: Event;
 
   constructor(
-    private data: DataService,
+    private calService: CalendarService,
     private activatedRoute: ActivatedRoute
   ) { }
 
-  ngOnInit() {
-    const id = this.activatedRoute.snapshot.paramMap.get('id') as string;
-    this.event = this.data.getEventById(parseInt(id, 10));
+  async ngOnInit() {
+    const eventId = this.activatedRoute.snapshot.paramMap.get('eventId') as string;
+    const calId = this.activatedRoute.snapshot.paramMap.get('calendarId') as string;
+    this.event = await this.calService.getEventById(calId, parseInt(eventId, 10));
   }
 
   getBackButtonText() {
