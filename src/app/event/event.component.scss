@@ -1,6 +1,10 @@
 ion-item {
-  --padding-start: 0;
-  --inner-padding-end: 0;
+  padding-bottom: 10px;
+  padding-top: 10px;
+  border: solid;
+  border-color: transparent;
+  border-width: 8px;
+  box-sizing: border-box;
 }
 
 ion-label {
@@ -46,10 +50,6 @@ ion-item ion-icon {
   margin: 16px 10px 16px 16px;
 }
 
-.dot-unread {
-  background: var(--ion-color-primary);
-}
-
 ion-footer ion-title {
   font-size: 11px;
   font-weight: normal;
@@ -62,4 +62,8 @@ ion-footer ion-title {
   font-weight: normal;
   display: block;
   text-align: center;
+}
+
+.bottom-line {
+  border-bottom: solid 1px rgba(128, 128, 128, 0.488);
 }
