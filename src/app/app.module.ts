@@ -7,19 +7,14 @@ import { IonicModule, IonicRouteStrategy } from '@ionic/angular';
 import { AppComponent } from './app.component';
 import { AppRoutingModule } from './app-routing.module';
 
-import { HttpBackend, HttpXhrBackend } from '@angular/common/http';
-import { NativeHttpModule, NativeHttpBackend, NativeHttpFallback } from 'ionic-native-http-connection-backend';
-import { Platform } from '@ionic/angular';
-
 
 
 
 @NgModule({
   declarations: [AppComponent],
-  imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule, NativeHttpModule],
+  imports: [BrowserModule, IonicModule.forRoot(), AppRoutingModule],
   providers: [
-    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy },
-    { provide: HttpBackend, useClass: NativeHttpFallback, deps: [Platform, NativeHttpBackend, HttpXhrBackend]}],
+    { provide: RouteReuseStrategy, useClass: IonicRouteStrategy }],
   bootstrap: [AppComponent],
 })
 export class AppModule {}
