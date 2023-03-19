@@ -1,34 +1,51 @@
 import { Injectable } from '@angular/core';
 import axios from 'axios';
-import { Observable, of } from 'rxjs';
 import { environment } from 'src/environments/environment';
 
 export interface Event {
   summary: string;
   calendarName: string;
-  dateTime: string;
+  calendarId: string;
+  primaryColor: string;
+  secondaryColor: string;
+  dateString: string;
+  dateObject: Date;
   location: string;
   id: number;
   description: string;
 }
 
-var execute = 1;
+export class Calendar {
+  calendarId: string = '';
+  calendarName: string = '';
+  loaded: boolean = false;;
+  primaryColor: string = '';
+  secondaryColor: string = '';
+  eventList: Event[] = [];
 
-@Injectable({
-  providedIn: 'root'
-})
-export class DataService {
-
-  public eventList: Event[] = [];
-
-  constructor() { 
-    
+  constructor(calendarName: string) {
+    var cal = undefined;
+    for (let i = 0; i < environment.calendarIds.length; i++) {
+      if (environment.calendarIds[i].name === calendarName) {
+        cal = environment.calendarIds[i];
+      }
+    }
+    if (cal) {
+      this.calendarId = cal.calendarId;
+      this.calendarName = cal.name;
+      this.primaryColor = cal.primaryColor;
+      this.secondaryColor = cal.secondaryColor;
+      this.loaded = false;
+      this.eventList = [];
+    } else {
+      throw new Error("Invalid Calendar Name");
+    }
   }
 
-  public async getEventList(): Promise<any> {
-    //this.getGCalendarEvents();
-    console.log("hi");
-    var url = 'https://www.googleapis.com/calendar/v3/calendars/c24d93250c31d00077422e6da47cd4a0e5fc94680dad684d14fcf5e7fed2ba55@group.calendar.google.com/events';
+  async populateEventList() {
+    return new Promise<void>(async (resolve, reject) => {
+      this.eventList = [];
+      var url = `https://www.googleapis.com/calendar/v3/calendars/${this.calendarId}/events`;
       const params = {
         key: environment.calendarApiKey,
         timeMin: new Date().toISOString(),
@@ -36,53 +53,93 @@ export class DataService {
         orderBy: "startTime"
       }
 
-      await axios.get(url, {params: params})
-      
-      .then(response => {
-        //console.log(response.data);
-        const data = JSON.parse(JSON.stringify(response.data));
-        const events = data.items;
-        var id = 0;
-        for (const event of events) {
-          var tmpEvent = this.emptyEvent();
-          tmpEvent.summary = event.summary;
-          tmpEvent.calendarName = '';
-          if (event.start.dateTime === undefined) {
-            var d = new Date(event.start.date);
-            var dateString = d.getMonth() + 1 + "/" + d.getDate() + "/" + d.getFullYear();
-            tmpEvent.dateTime = dateString;
-          } else {
-            const d = new Date(event.start.dateTime);
-            const timeString = d.toLocaleTimeString([], {hour: 'numeric', minute:'2-digit'});
-            const dateString = d.getMonth() + 1 + "/" + d.getDate() + "/" + d.getFullYear();
-            tmpEvent.dateTime = dateString + ", " + timeString;
-          }
-          tmpEvent.location = event.location;
-          tmpEvent.description = event.description;
-          tmpEvent.id = id++;
-          this.eventList.push(tmpEvent);
-        }
-        //console.log(this.eventList);
-      })
-      .catch(error => {
-        console.log(error);
-      });
-      return this.eventList
-  }
+      await axios.get(url, { params: params })
 
-  public getEventById(id: any) {
-    return this.eventList[id];
+        .then(response => {
+          //console.log(response.data);
+          const data = JSON.parse(JSON.stringify(response.data));
+          const events = data.items;
+          var id = 0;
+          for (const event of events) {
+            var tmpEvent = this.emptyEvent();
+            tmpEvent.summary = event.summary;
+            tmpEvent.calendarName = data.summary;
+            if (event.start.dateTime === undefined) {
+              const d = new Date(event.start.date);
+              tmpEvent.dateObject = d;
+              const dateString = d.getMonth() + 1 + "/" + d.getDate() + "/" + d.getFullYear();
+              tmpEvent.dateString = dateString;
+            } else {
+              const d = new Date(event.start.dateTime);
+              tmpEvent.dateObject = d;
+              const timeString = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
+              const dateString = d.getMonth() + 1 + "/" + d.getDate() + "/" + d.getFullYear();
+              tmpEvent.dateString = dateString + ", " + timeString;
+            }
+            tmpEvent.location = event.location;
+            tmpEvent.description = event.description;
+            tmpEvent.id = id++;
+            tmpEvent.calendarId = this.calendarId;
+            tmpEvent.primaryColor = this.primaryColor;
+            tmpEvent.secondaryColor = this.secondaryColor;
+            this.eventList.push(tmpEvent);
+          }
+          //console.log(this.eventList);
+          resolve();
+        })
+        .catch(error => {
+          console.log(error);
+        });
+    });
   }
 
   private emptyEvent(): Event {
     return {
       summary: '',
       calendarName: '',
-      dateTime: '',
+      calendarId: '',
+      primaryColor: '',
+      secondaryColor: '',
+      dateString: '',
+      dateObject: new Date(),
       location: '',
       id: 0,
       description: ''
     }
   }
-  
+}
+
+
+@Injectable({
+  providedIn: 'root'
+})
+
+export class CalendarService {
+  constructor() { }
+
+  private calendars: Calendar[] = [];
+
+  public getCalendarList() {
+    return this.calendars;
+  }
+
+  addCalendar(cal: Calendar) {
+    this.calendars.push(cal);
+  }
+
+  getEventById(calId: any, eventId: any) {
+    return new Promise<Event>((resolve, reject) => {
+      for (let i = 0; i < this.calendars.length; i++) {
+        if (this.calendars[i].calendarId === calId) {
+          if (this.calendars[i].eventList[eventId] === undefined) {
+            reject("Invalid Event");
+          } else {
+            resolve(this.calendars[i].eventList[eventId]);
+          }
+        }
+      }
+      reject("Invalid Calendar");
+    });
+
+  }
 }
