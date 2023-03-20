@@ -1,15 +1,19 @@
 <ion-menu contentId="main-content">
-  <ion-header>
-    <ion-toolbar>
-      <ion-title>Calendars</ion-title>
-    </ion-toolbar>
-  </ion-header>
-  <div *ngFor="let cal of envCalList">
-    <ion-item>
-      <ion-checkbox [ngStyle]="{ '--border-color': cal.secondaryColor, '--background-checked': cal.primaryColor }" slot="start"></ion-checkbox>
-      <ion-label class="ion-text-wrap">{{ cal.name }}</ion-label>
-    </ion-item>
-  </div>
+  <ion-content>
+    <ion-header>
+      <ion-toolbar>
+        <ion-title>Calendars</ion-title>
+      </ion-toolbar>
+    </ion-header>
+    <div *ngFor="let cal of envCalList">
+      <ion-item>
+        <ion-checkbox [checked]="selectedCalendars.includes(cal.name)" [ngStyle]="{ '--border-color': cal.secondaryColor, '--background-checked': cal.primaryColor }"
+          (ionChange)="onCheckboxChange($event, cal)" slot="start"></ion-checkbox>
+        <ion-label class="ion-text-wrap">{{ cal.name }}</ion-label>
+      </ion-item>
+    </div>
+  </ion-content>
+
 </ion-menu>
 
 <ion-content [fullscreen]="true">
@@ -27,8 +31,9 @@
       </ion-toolbar>
     </ion-header>
   </div>
-  
+
   <ion-list lines="none" id="eventListElement">
     <app-event class="bottom-line" *ngFor="let event of eventList" [event]="event"></app-event>
+    <ion-item *ngIf="!eventList.length">No events to display!</ion-item>
   </ion-list>
 </ion-content>
