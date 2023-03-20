@@ -1,7 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { RefresherCustomEvent } from '@ionic/angular';
+import { start } from 'repl';
 import { environment } from 'src/environments/environment';
-import { debounceTime, Observable, from, distinctUntilChanged, Subject } from 'rxjs';
 
 import { Calendar, CalendarService, Event } from '../services/data.service';
 
@@ -17,7 +16,11 @@ export class HomePage implements OnInit {
   tmpEventList: Event[] = [];
   eventsLoaded = false;
   envCalList: any[] = [];
+  dateList: string[] = [];
   selectedCalendars: string[] = [];
+
+  currentPage = 0;
+  eventsPerPage = 15;
 
   constructor(private calService: CalendarService) {
 
@@ -54,6 +57,7 @@ export class HomePage implements OnInit {
     const combinedEventList = (await this.calService.getCalendarList()).reduce((acc, cal) => acc.concat(cal.eventList), [] as Event[]);
     console.log("combinedEventList: ", combinedEventList);
     this.eventList = await this.sortEvents(combinedEventList);
+    this.dateList = Array.from(new Set(this.getPage(this.currentPage).map(event => event.dateObject.toDateString())));
   }
 
   async sortEvents(events: Event[]) {
@@ -63,6 +67,17 @@ export class HomePage implements OnInit {
       });
       resolve(sortedEventList);
     });
+  }
+
+  getPage(pageNumber: number): Event[] {
+    console.log("Current page: ", this.currentPage);
+    const startIndex = pageNumber * this.currentPage;
+    const endIndex = startIndex + this.eventsPerPage;
+    return this.eventList.slice(startIndex, endIndex);
+  }
+
+  loadNextPage() {
+    this.currentPage++;
   }
 
   async onCheckboxChange(event: any, cal: any) {

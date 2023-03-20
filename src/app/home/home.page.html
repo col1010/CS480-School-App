@@ -27,13 +27,19 @@
         <ion-buttons slot="start">
           <ion-menu-button></ion-menu-button>
         </ion-buttons>
-        <ion-title>Menu</ion-title>
+        <ion-title>Schools</ion-title>
       </ion-toolbar>
     </ion-header>
   </div>
 
   <ion-list lines="none" id="eventListElement">
-    <app-event class="bottom-line" *ngFor="let event of eventList" [event]="event"></app-event>
+    <div *ngFor="let date of dateList">
+      <h4>{{ date }}</h4>
+      <div *ngFor="let event of getPage(currentPage)">
+        <app-event *ngIf="date === event.dateObject.toDateString()" [event]="event"></app-event>
+      </div>
+    </div>
     <ion-item *ngIf="!eventList.length">No events to display!</ion-item>
   </ion-list>
+  <ion-button (click)="loadNextPage()" expand="full" >Load More Events</ion-button>
 </ion-content>

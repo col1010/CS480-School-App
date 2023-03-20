@@ -8,7 +8,7 @@ export interface Event {
   calendarId: string;
   primaryColor: string;
   secondaryColor: string;
-  dateString: string;
+  dateString?: string;
   dateObject: Date;
   location: string;
   id: number;
@@ -46,9 +46,13 @@ export class Calendar {
     return new Promise<void>(async (resolve, reject) => {
       this.eventList = [];
       var url = `https://www.googleapis.com/calendar/v3/calendars/${this.calendarId}/events`;
+      const now = new Date();
+      var oneMonth = new Date();
+      oneMonth.setMonth(now.getMonth() + 1);
       const params = {
         key: environment.calendarApiKey,
-        timeMin: new Date().toISOString(),
+        timeMin: now.toISOString(),
+        timeMax: oneMonth.toISOString(),
         singleEvents: true,
         orderBy: "startTime"
       }
@@ -67,14 +71,11 @@ export class Calendar {
             if (event.start.dateTime === undefined) {
               const d = new Date(event.start.date);
               tmpEvent.dateObject = d;
-              const dateString = d.getMonth() + 1 + "/" + d.getDate() + "/" + d.getFullYear();
-              tmpEvent.dateString = dateString;
+              tmpEvent.dateString = undefined;
             } else {
               const d = new Date(event.start.dateTime);
               tmpEvent.dateObject = d;
-              const timeString = d.toLocaleTimeString([], { hour: 'numeric', minute: '2-digit' });
-              const dateString = d.getMonth() + 1 + "/" + d.getDate() + "/" + d.getFullYear();
-              tmpEvent.dateString = dateString + ", " + timeString;
+              tmpEvent.dateString = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
             }
             tmpEvent.location = event.location;
             tmpEvent.description = event.description;
