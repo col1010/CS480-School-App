@@ -1,10 +1,10 @@
 <div class="bottom-line">
   <ion-item *ngIf="event" [routerLink]="'/calendar/' + event.calendarId + '/event/' + event.id" [detail]="false" [ngStyle]="{'border-left-color': (event.secondaryColor == '') ? '' : event.secondaryColor}">
-    <ion-label [ngStyle]="{'color': (event.primaryColor == '') ? '' : event.primaryColor}">
-      <ion-note class="date" [ngStyle]="{'color': (event.primaryColor == '') ? '' : event.primaryColor}">{{ event.dateString }}</ion-note>
+    <ion-label>
+      <ion-note class="date" >{{ event.dateString }}</ion-note>
       <h2>{{ event.summary }}</h2>
       <h3><ion-icon name="calendar"></ion-icon> {{ event.calendarName }}</h3>
-      <h3><ion-icon *ngIf="event.location" name="map"></ion-icon> {{ event.location }}</h3>
+      <h3 *ngIf="event.location"><ion-icon name="map"></ion-icon> {{ event.location }}</h3>
       <p *ngIf="event.description">{{ event.description }}</p>
     </ion-label>
   </ion-item>
