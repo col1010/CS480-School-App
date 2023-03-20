@@ -1,59 +1,80 @@
-import { Component } from '@angular/core';
+import { Component, OnInit } from '@angular/core';
 import { RefresherCustomEvent } from '@ionic/angular';
 import { environment } from 'src/environments/environment';
+import { debounceTime, Observable, from, distinctUntilChanged, Subject } from 'rxjs';
 
-import {Calendar, CalendarService, Event} from '../services/data.service';
+import { Calendar, CalendarService, Event } from '../services/data.service';
+
 
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
   styleUrls: ['home.page.scss'],
 })
-export class HomePage {
+export class HomePage implements OnInit {
 
   eventList: Event[] = [];
   tmpEventList: Event[] = [];
   eventsLoaded = false;
-  envCalList;
+  envCalList: any[] = [];
+  selectedCalendars: string[] = [];
 
   constructor(private calService: CalendarService) {
-    var cal = new Calendar("Lewiston High School Athletic Calendar");
-    this.calService.addCalendar(cal);
-    var cal = new Calendar("Jenifer Middle School Food Menu");
-    this.calService.addCalendar(cal);
-    this.envCalList = environment.calendarIds;
+
   };
 
+  ngOnInit() {
+    this.envCalList = environment.calendarIds;
+    for (let i = 0; i < this.envCalList.length; i++) {
+      if (localStorage.getItem(this.envCalList[i].name) === "checked") {
+        this.selectedCalendars.push(this.envCalList[i].name);
+        this.calService.addCalendar(new Calendar(this.envCalList[i].name, true));
+      } else {
+        this.calService.addCalendar(new Calendar(this.envCalList[i].name, false));
+      }
+    }
+  }
+
   async handleRefresh(event: any) {
-      await this.loadEvents();
-      this.eventList = this.tmpEventList;
-      event.target.complete();
+    await this.calService.updateAllCalendars();
+    await this.loadEvents();
+    event.target.complete();
   }
 
   async ionViewDidEnter() {
     if (!this.eventsLoaded) {
+      await this.calService.updateAllCalendars();
       await this.loadEvents();
-      console.log("sorted: ", this.tmpEventList);
+      console.log("sorted: ", this.eventList);
       this.eventsLoaded = true;
-      this.eventList = this.tmpEventList;
     }
   }
 
   async loadEvents() {
-    this.tmpEventList = [];
-    const promises = this.calService.getCalendarList().map(cal => cal.populateEventList());
-    const results = await Promise.all(promises);
-    this.tmpEventList = this.calService.getCalendarList().reduce((acc, cal) => acc.concat(cal.eventList), [] as Event[]);
-    await this.sortEvents();
+    const combinedEventList = (await this.calService.getCalendarList()).reduce((acc, cal) => acc.concat(cal.eventList), [] as Event[]);
+    console.log("combinedEventList: ", combinedEventList);
+    this.eventList = await this.sortEvents(combinedEventList);
   }
 
-  async sortEvents() {
-    return new Promise<void>((resolve, reject) => {
-      const sortedEventList = this.tmpEventList.slice().sort((a: Event, b: Event) => {
+  async sortEvents(events: Event[]) {
+    return new Promise<Event[]>((resolve) => {
+      const sortedEventList = events.slice().sort((a: Event, b: Event) => {
         return a.dateObject.getTime() - b.dateObject.getTime();
       });
-      this.tmpEventList = sortedEventList;
-      resolve();
+      resolve(sortedEventList);
     });
+  }
+
+  async onCheckboxChange(event: any, cal: any) {
+    const isChecked = event.detail.checked;
+    if (isChecked) {
+      localStorage.setItem(cal.name, "checked");
+    } else {
+      localStorage.setItem(cal.name, "unchecked");
+    }
+    this.calService.changeCheckedStatus(cal.name);
+
+    await this.loadEvents();
+
   }
 }
