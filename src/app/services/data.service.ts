@@ -18,12 +18,12 @@ export interface Event {
 export class Calendar {
   calendarId: string = '';
   calendarName: string = '';
-  loaded: boolean = false;;
+  checked: boolean = false;
   primaryColor: string = '';
   secondaryColor: string = '';
   eventList: Event[] = [];
 
-  constructor(calendarName: string) {
+  constructor(calendarName: string, checked: boolean) {
     var cal = undefined;
     for (let i = 0; i < environment.calendarIds.length; i++) {
       if (environment.calendarIds[i].name === calendarName) {
@@ -35,7 +35,7 @@ export class Calendar {
       this.calendarName = cal.name;
       this.primaryColor = cal.primaryColor;
       this.secondaryColor = cal.secondaryColor;
-      this.loaded = false;
+      this.checked = checked;
       this.eventList = [];
     } else {
       throw new Error("Invalid Calendar Name");
@@ -119,12 +119,55 @@ export class CalendarService {
 
   private calendars: Calendar[] = [];
 
-  public getCalendarList() {
-    return this.calendars;
+  public getCalendarList(): Promise<Calendar[]> {
+    return new Promise<Calendar[]>((resolve) => {
+      var tmp: Calendar[] = [];
+      for (let i = 0; i < this.calendars.length; i++) {
+        if (this.calendars[i].checked) {
+          tmp.push(this.calendars[i]);
+          console.log("Pushing ", this.calendars[i].calendarName);
+        }
+      }
+      console.log("tmp: ", tmp);
+      resolve(tmp);
+    });
+  }
+
+  public updateAllCalendars(): Promise<void> {
+    return new Promise<void>(async (resolve) => {
+      const promises = this.calendars.map(cal => cal.populateEventList());
+      await Promise.all(promises);
+      resolve();
+    });
   }
 
   addCalendar(cal: Calendar) {
     this.calendars.push(cal);
+  }
+
+  removeCalendar(name: string) {
+    for (let i = 0; i < this.calendars.length; i++) {
+      if (this.calendars[i].calendarName === name) {
+        this.calendars.splice(i, 1);
+      }
+    }
+  }
+
+  isSelected(name: string): boolean {
+    for (let i = 0; i < this.calendars.length; i++) {
+      if (this.calendars[i].calendarName === name) {
+        return true;
+      }
+    }
+    return false;
+  }
+
+  changeCheckedStatus(name: string) {
+    for (let i = 0; i < this.calendars.length; i++) {
+      if (this.calendars[i].calendarName === name) {
+        this.calendars[i].checked = !this.calendars[i].checked;
+      }
+    }
   }
 
   getEventById(calId: any, eventId: any) {
