@@ -47,12 +47,12 @@ export class Calendar {
       this.eventList = [];
       var url = `https://www.googleapis.com/calendar/v3/calendars/${this.calendarId}/events`;
       const now = new Date();
-      var oneMonth = new Date();
-      oneMonth.setMonth(now.getMonth() + 1);
+      var oneYear = new Date();
+      oneYear.setFullYear(now.getFullYear() + 1);
       const params = {
         key: environment.calendarApiKey,
         timeMin: now.toISOString(),
-        timeMax: oneMonth.toISOString(),
+        timeMax: oneYear.toISOString(),
         singleEvents: true,
         orderBy: "startTime"
       }
