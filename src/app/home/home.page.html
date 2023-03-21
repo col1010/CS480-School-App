@@ -7,7 +7,8 @@
     </ion-header>
     <div *ngFor="let cal of envCalList">
       <ion-item>
-        <ion-checkbox [checked]="selectedCalendars.includes(cal.name)" [ngStyle]="{ '--border-color': cal.secondaryColor, '--background-checked': cal.primaryColor }"
+        <ion-checkbox [checked]="selectedCalendars.includes(cal.name)"
+          [ngStyle]="{ '--border-color': cal.secondaryColor, '--background-checked': cal.primaryColor }"
           (ionChange)="onCheckboxChange($event, cal)" slot="start"></ion-checkbox>
         <ion-label class="ion-text-wrap">{{ cal.name }}</ion-label>
       </ion-item>
@@ -35,11 +36,11 @@
   <ion-list lines="none" id="eventListElement">
     <div *ngFor="let date of dateList">
       <h4>{{ date }}</h4>
-      <div *ngFor="let event of getPage(currentPage)">
+      <div *ngFor="let event of eventList">
         <app-event *ngIf="date === event.dateObject.toDateString()" [event]="event"></app-event>
       </div>
     </div>
     <ion-item *ngIf="!eventList.length">No events to display!</ion-item>
   </ion-list>
-  <ion-button (click)="loadNextPage()" expand="full" >Load More Events</ion-button>
+  <ion-button *ngIf="moreEventsButtonShown" (click)="loadNextPage()" [disabled]="moreEventsButtonDisabled" expand="full">Load More Events</ion-button>
 </ion-content>

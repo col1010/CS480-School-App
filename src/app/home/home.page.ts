@@ -1,5 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { start } from 'repl';
 import { environment } from 'src/environments/environment';
 
 import { Calendar, CalendarService, Event } from '../services/data.service';
@@ -19,11 +18,15 @@ export class HomePage implements OnInit {
   dateList: string[] = [];
   selectedCalendars: string[] = [];
 
-  currentPage = 0;
-  eventsPerPage = 15;
+  endIndex: number;
+
+  moreEventsButtonDisabled: boolean;
+  moreEventsButtonShown: boolean;
 
   constructor(private calService: CalendarService) {
-
+    this.endIndex = 15;
+    this.moreEventsButtonDisabled = false;
+    this.moreEventsButtonShown = false;
   };
 
   ngOnInit() {
@@ -57,7 +60,7 @@ export class HomePage implements OnInit {
     const combinedEventList = (await this.calService.getCalendarList()).reduce((acc, cal) => acc.concat(cal.eventList), [] as Event[]);
     console.log("combinedEventList: ", combinedEventList);
     this.eventList = await this.sortEvents(combinedEventList);
-    this.dateList = Array.from(new Set(this.getPage(this.currentPage).map(event => event.dateObject.toDateString())));
+    this.dateList = Array.from(new Set(this.getEvents().map(event => event.dateObject.toDateString())));
   }
 
   async sortEvents(events: Event[]) {
@@ -69,19 +72,30 @@ export class HomePage implements OnInit {
     });
   }
 
-  getPage(pageNumber: number): Event[] {
-    console.log("Current page: ", this.currentPage);
-    const startIndex = pageNumber * this.currentPage;
-    const endIndex = startIndex + this.eventsPerPage;
-    return this.eventList.slice(startIndex, endIndex);
+  getEvents(): Event[] {
+    if (!this.eventList.length) {
+      this.moreEventsButtonShown = false;
+      return [];
+    } else {
+      if (this.endIndex > this.eventList.length) {
+        this.endIndex = this.eventList.length;
+        this.moreEventsButtonDisabled = true;
+      }
+      console.log("sliced array: ", this.eventList.slice(0, this.endIndex));
+      this.moreEventsButtonShown = true;
+      return this.eventList.slice(0, this.endIndex);
+    }
   }
 
   loadNextPage() {
-    this.currentPage++;
+    this.endIndex += 15;
+    this.loadEvents();
   }
 
   async onCheckboxChange(event: any, cal: any) {
     const isChecked = event.detail.checked;
+    this.moreEventsButtonDisabled = false;
+    this.endIndex = 15;
     if (isChecked) {
       localStorage.setItem(cal.name, "checked");
     } else {
