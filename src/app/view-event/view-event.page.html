@@ -16,7 +16,7 @@
   
   <div class="ion-padding">
     <h1>{{ event.summary }}</h1>
-    <ion-note><ion-icon name="time"></ion-icon> {{ event.dateObject.toDateString() }}</ion-note><br>
+    <ion-note><ion-icon name="time"></ion-icon> {{ event.startDateObject.toDateString() }}</ion-note><br>
     <ion-note><ion-icon *ngIf="event?.location" name="map"></ion-icon> {{ event.location }}</ion-note>
     <p>
       {{ event.description }}

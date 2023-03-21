@@ -37,7 +37,7 @@
     <div *ngFor="let date of dateList">
       <h4>{{ date }}</h4>
       <div *ngFor="let event of eventList">
-        <app-event *ngIf="date === event.dateObject.toDateString()" [event]="event"></app-event>
+        <app-event *ngIf="date === event.startDateString" [event]="event"></app-event>
       </div>
     </div>
     <ion-item *ngIf="!eventList.length">No events to display!</ion-item>

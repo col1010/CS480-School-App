@@ -3,7 +3,6 @@ import { environment } from 'src/environments/environment';
 
 import { Calendar, CalendarService, Event } from '../services/data.service';
 
-
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
@@ -23,10 +22,22 @@ export class HomePage implements OnInit {
   moreEventsButtonDisabled: boolean;
   moreEventsButtonShown: boolean;
 
+  dateOptions: any;
+  formatter: any;
+
   constructor(private calService: CalendarService) {
     this.endIndex = 15;
     this.moreEventsButtonDisabled = false;
     this.moreEventsButtonShown = false;
+
+    this.dateOptions = {
+      weekday: 'long',
+      month: 'long',
+      day: 'numeric',
+      year: 'numeric',
+    };
+    
+    this.formatter = new Intl.DateTimeFormat('en-US', this.dateOptions);
   };
 
   ngOnInit() {
@@ -60,13 +71,13 @@ export class HomePage implements OnInit {
     const combinedEventList = (await this.calService.getCalendarList()).reduce((acc, cal) => acc.concat(cal.eventList), [] as Event[]);
     console.log("combinedEventList: ", combinedEventList);
     this.eventList = await this.sortEvents(combinedEventList);
-    this.dateList = Array.from(new Set(this.getEvents().map(event => event.dateObject.toDateString())));
+    this.dateList = Array.from(new Set(this.getEvents().map(event => this.calService.formatDate(event.startDateObject))));
   }
 
   async sortEvents(events: Event[]) {
     return new Promise<Event[]>((resolve) => {
       const sortedEventList = events.slice().sort((a: Event, b: Event) => {
-        return a.dateObject.getTime() - b.dateObject.getTime();
+        return a.startDateObject.getTime() - b.startDateObject.getTime();
       });
       resolve(sortedEventList);
     });
@@ -102,8 +113,9 @@ export class HomePage implements OnInit {
       localStorage.setItem(cal.name, "unchecked");
     }
     this.calService.changeCheckedStatus(cal.name);
-
+    console.log("Changing events...");
     await this.loadEvents();
+    console.log("Done");
 
   }
 }

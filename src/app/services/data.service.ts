@@ -2,14 +2,18 @@ import { Injectable } from '@angular/core';
 import axios from 'axios';
 import { environment } from 'src/environments/environment';
 
+const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
 export interface Event {
   summary: string;
   calendarName: string;
   calendarId: string;
   primaryColor: string;
   secondaryColor: string;
-  dateString?: string;
-  dateObject: Date;
+  startTimeString?: string;
+  startDateString: string;
+  startDateObject: Date;
+  endDateString?: string;
   location: string;
   id: number;
   description: string;
@@ -70,13 +74,20 @@ export class Calendar {
             tmpEvent.calendarName = data.summary;
             if (event.start.dateTime === undefined) {
               const d = new Date(event.start.date);
-              tmpEvent.dateObject = d;
-              tmpEvent.dateString = undefined;
+              tmpEvent.startDateObject = d;
+              tmpEvent.startTimeString = undefined;
             } else {
               const d = new Date(event.start.dateTime);
-              tmpEvent.dateObject = d;
-              tmpEvent.dateString = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+              tmpEvent.startDateObject = d;
+              tmpEvent.startTimeString = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
             }
+            if (event.end.dateTime === undefined) {
+              tmpEvent.endDateString = undefined;
+            } else {
+              const d = new Date(event.end.dateTime);
+              tmpEvent.endDateString = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+            }
+            tmpEvent.startDateString = this.formatDate(tmpEvent.startDateObject);
             tmpEvent.location = event.location;
             tmpEvent.description = event.description;
             tmpEvent.id = id++;
@@ -101,12 +112,18 @@ export class Calendar {
       calendarId: '',
       primaryColor: '',
       secondaryColor: '',
-      dateString: '',
-      dateObject: new Date(),
+      startTimeString: '',
+      startDateString: '',
+      startDateObject: new Date(),
+      endDateString: '',
       location: '',
       id: 0,
       description: ''
     }
+  }
+
+  private formatDate(date: Date): string {
+    return weekdays[date.getDay()] + ' ' + date.toLocaleDateString('en-US', {month: 'long', day: 'numeric', year: 'numeric'});
   }
 }
 
@@ -184,6 +201,8 @@ export class CalendarService {
       }
       reject("Invalid Calendar");
     });
-
+  }
+  formatDate(date: Date): string {
+    return weekdays[date.getDay()] + ' ' + date.toLocaleDateString('en-US', {month: 'long', day: 'numeric', year: 'numeric'});
   }
 }
