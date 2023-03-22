@@ -13,7 +13,7 @@ export interface Event {
   startTimeString?: string;
   startDateString: string;
   startDateObject: Date;
-  endDateString?: string;
+  endTimeString?: string;
   location: string;
   id: number;
   description: string;
@@ -82,10 +82,10 @@ export class Calendar {
               tmpEvent.startTimeString = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
             }
             if (event.end.dateTime === undefined) {
-              tmpEvent.endDateString = undefined;
+              tmpEvent.endTimeString = undefined;
             } else {
               const d = new Date(event.end.dateTime);
-              tmpEvent.endDateString = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+              tmpEvent.endTimeString = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
             }
             tmpEvent.startDateString = this.formatDate(tmpEvent.startDateObject);
             tmpEvent.location = event.location;
@@ -115,7 +115,7 @@ export class Calendar {
       startTimeString: '',
       startDateString: '',
       startDateObject: new Date(),
-      endDateString: '',
+      endTimeString: '',
       location: '',
       id: 0,
       description: ''
