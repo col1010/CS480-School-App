@@ -10,6 +10,8 @@ import { Calendar, CalendarService, Event } from '../services/data.service';
 export class ViewEventPage implements OnInit {
   public event!: Event;
 
+  baseGoogleMapsURL = "https://google.com/maps/search/";
+
   constructor(
     private calService: CalendarService,
     private activatedRoute: ActivatedRoute
@@ -25,5 +27,9 @@ export class ViewEventPage implements OnInit {
     const win = window as any;
     const mode = win && win.Ionic && win.Ionic.mode;
     return mode === 'ios' ? 'Calendar' : '';
+  }
+
+  replaceSpaces(str: string) {
+    return str.replace(/\s/g, '+');
   }
 }

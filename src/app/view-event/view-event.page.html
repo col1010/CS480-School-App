@@ -16,8 +16,8 @@
   
   <div class="ion-padding">
     <h1>{{ event.summary }}</h1>
-    <ion-note><ion-icon name="time"></ion-icon> {{ event.startDateObject.toDateString() }}</ion-note><br>
-    <ion-note><ion-icon *ngIf="event?.location" name="map"></ion-icon> {{ event.location }}</ion-note>
+    <ion-note><ion-icon name="time"></ion-icon> {{ event.startDateString }}<span *ngIf="event.startTimeString">, {{ event.startTimeString }} - {{ event.endTimeString }}</span></ion-note><br>
+    <a [href]="baseGoogleMapsURL + replaceSpaces(event.location)"><ion-note *ngIf="event?.location"><ion-icon name="map"></ion-icon> {{ event.location }}</ion-note></a>
     <p>
       {{ event.description }}
     </p>
