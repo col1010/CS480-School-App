@@ -13,6 +13,7 @@ export interface Event {
   startTimeString?: string;
   startDateString: string;
   startDateObject: Date;
+  endDateObject?: Date,
   endTimeString?: string;
   location: string;
   id: number;
@@ -83,8 +84,10 @@ export class Calendar {
             }
             if (event.end.dateTime === undefined) {
               tmpEvent.endTimeString = undefined;
+              tmpEvent.endDateObject = tmpEvent.startDateObject; // set the end date the same as the start date to correctly set up an all day event
             } else {
               const d = new Date(event.end.dateTime);
+              tmpEvent.endDateObject = d;
               tmpEvent.endTimeString = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
             }
             tmpEvent.startDateString = this.formatDate(tmpEvent.startDateObject);
@@ -116,6 +119,7 @@ export class Calendar {
       startDateString: '',
       startDateObject: new Date(),
       endTimeString: '',
+      endDateObject: new Date(),
       location: '',
       id: 0,
       description: ''
