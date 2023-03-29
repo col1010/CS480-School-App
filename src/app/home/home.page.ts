@@ -54,24 +54,24 @@ export class HomePage implements OnInit {
 
   async handleRefresh(event: any) {
     await this.calService.updateAllCalendars();
-    await this.loadEvents();
+    await this.refreshEvents();
     event.target.complete();
   }
 
   async ionViewDidEnter() {
     if (!this.eventsLoaded) {
       await this.calService.updateAllCalendars();
-      await this.loadEvents();
+      await this.refreshEvents();
       console.log("sorted: ", this.eventList);
       this.eventsLoaded = true;
     }
   }
 
-  async loadEvents() {
+  async refreshEvents() {
     const combinedEventList = (await this.calService.getCalendarList()).reduce((acc, cal) => acc.concat(cal.eventList), [] as Event[]);
     console.log("combinedEventList: ", combinedEventList);
     this.eventList = await this.sortEvents(combinedEventList);
-    this.dateList = Array.from(new Set(this.getEvents().map(event => this.calService.formatDate(event.startDateObject))));
+    this.dateList = Array.from(new Set(this.getEvents().map(event => CalendarService.formatDate(event.startDateObject))));
   }
 
   async sortEvents(events: Event[]) {
@@ -100,7 +100,7 @@ export class HomePage implements OnInit {
 
   loadNextPage() {
     this.endIndex += 15;
-    this.loadEvents();
+    this.refreshEvents();
   }
 
   async onCheckboxChange(event: any, cal: any) {
@@ -114,7 +114,7 @@ export class HomePage implements OnInit {
     }
     this.calService.changeCheckedStatus(cal.name);
     console.log("Changing events...");
-    await this.loadEvents();
+    await this.refreshEvents();
     console.log("Done");
 
   }
