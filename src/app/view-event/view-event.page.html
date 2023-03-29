@@ -17,9 +17,10 @@
   <div class="ion-padding">
     <h1>{{ event.summary }}</h1>
     <ion-note><ion-icon name="time"></ion-icon> {{ event.startDateString }}<span *ngIf="event.startTimeString">, {{ event.startTimeString }} - {{ event.endTimeString }}</span></ion-note><br>
-    <a *ngIf="event?.location" [href]="baseGoogleMapsURL + replaceSpaces(event.location)"><ion-note *ngIf="event?.location"><ion-icon name="map"></ion-icon> {{ event.location }}</ion-note></a>
-    <p>{{ event.description }}</p>
-    <ion-button class="ion-text-wrap" (click)="addEventToNativeCalendar(event)">Add event to calendar</ion-button>
-    <ion-button class="ion-text-wrap" [href]="getCalendarURL(event)">Subscribe to {{ event.calendarName }}</ion-button>
+    <a *ngIf="event.location" [href]="baseGoogleMapsURL + replaceSpaces(event.location)"><ion-note *ngIf="event.location"><ion-icon name="map"></ion-icon> {{ event.location }}</ion-note></a>
+    <p *ngIf="event.description">Description: {{ event.description }}</p>
+    <p *ngIf="!event.description">No description</p>
+    <ion-button [ngStyle]="{'--ripple-color': event.primaryColor}" class="ion-text-wrap" (click)="addEventToNativeCalendar(event)">Add event to calendar</ion-button>
+    <ion-button [ngStyle]="{'--ripple-color': event.primaryColor}" class="ion-text-wrap" [href]="getCalendarURL(event)">Subscribe to {{ event.calendarName }}</ion-button>
   </div>
 </ion-content>
