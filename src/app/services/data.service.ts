@@ -62,7 +62,7 @@ export class Calendar {
         orderBy: "startTime"
       }
 
-      await axios.get(url, { params: params })
+      axios.get(url, { params: params })
 
         .then(response => {
           //console.log(response.data);
@@ -76,6 +76,7 @@ export class Calendar {
             if (event.start.dateTime === undefined) {
               const d = new Date(event.start.date);
               tmpEvent.startDateObject = d;
+              d.setMinutes(d.getMinutes() + d.getTimezoneOffset());
               tmpEvent.startTimeString = undefined;
             } else {
               const d = new Date(event.start.dateTime);
@@ -90,7 +91,8 @@ export class Calendar {
               tmpEvent.endDateObject = d;
               tmpEvent.endTimeString = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
             }
-            tmpEvent.startDateString = this.formatDate(tmpEvent.startDateObject);
+            tmpEvent.startDateString = CalendarService.formatDate(tmpEvent.startDateObject);
+            console.log(tmpEvent.startDateString);
             tmpEvent.location = event.location;
             tmpEvent.description = event.description;
             tmpEvent.id = id++;
@@ -104,6 +106,7 @@ export class Calendar {
         })
         .catch(error => {
           console.log(error);
+          reject();
         });
     });
   }
@@ -124,10 +127,6 @@ export class Calendar {
       id: 0,
       description: ''
     }
-  }
-
-  private formatDate(date: Date): string {
-    return weekdays[date.getDay()] + ' ' + date.toLocaleDateString('en-US', {month: 'long', day: 'numeric', year: 'numeric'});
   }
 }
 
@@ -206,7 +205,8 @@ export class CalendarService {
       reject("Invalid Calendar");
     });
   }
-  formatDate(date: Date): string {
+
+  static formatDate(date: Date): string {
     return weekdays[date.getDay()] + ' ' + date.toLocaleDateString('en-US', {month: 'long', day: 'numeric', year: 'numeric'});
   }
 }
