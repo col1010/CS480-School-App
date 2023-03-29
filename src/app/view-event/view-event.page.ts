@@ -1,7 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { Calendar, CalendarService, Event } from '../services/data.service';
+import { CalendarService, Event } from '../services/data.service';
 import { Calendar as NativeCalendar } from '@awesome-cordova-plugins/calendar/ngx';
+import { ToastController } from '@ionic/angular';
 
 @Component({
   selector: 'app-view-event',
@@ -16,7 +17,8 @@ export class ViewEventPage implements OnInit {
   constructor(
     private calService: CalendarService,
     private activatedRoute: ActivatedRoute,
-    private calendar: NativeCalendar
+    private calendar: NativeCalendar,
+    private toastController: ToastController,
   ) { }
 
   async ngOnInit() {
@@ -37,18 +39,11 @@ export class ViewEventPage implements OnInit {
 
   async addEventToNativeCalendar(event: Event) {
 
-    const calendarId = await this.getCalendarID(event);
+    this.calendar.createEventInteractivelyWithOptions(event.summary, event.location, event.description, event.startDateObject, event.endDateObject, {}).then(
+    () => {
 
-    console.log("Calendar Id: ", calendarId);
-
-    const eventOptions = {
-      calendarId: parseInt(calendarId)
-    };
-
-    this.calendar.createEventInteractivelyWithOptions(event.summary, event.location, event.description, event.startDateObject, event.endDateObject, eventOptions).then(() => {
-      console.log("Event added successfully");
     }, (err) => {
-      console.log("Error creating event");
+      this.presentToastNotification("Error creating event!", true);
     });
     
   }
@@ -78,6 +73,18 @@ export class ViewEventPage implements OnInit {
       calID = undefined;
     })
     return calID;
+  }
+
+  async presentToastNotification(message: string, error: boolean) {
+    var color;
+    error ? color = 'danger' : color = 'success';
+    const toast = await this.toastController.create({
+      message: message,
+      duration: 3000,
+      position: 'bottom',
+      color: color
+    });
+    toast.present();
   }
 
   getCalendarURL(event: Event): string {
