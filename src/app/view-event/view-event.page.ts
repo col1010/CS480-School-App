@@ -3,6 +3,7 @@ import { ActivatedRoute } from '@angular/router';
 import { CalendarService, Event } from '../services/data.service';
 import { Calendar as NativeCalendar } from '@awesome-cordova-plugins/calendar/ngx';
 import { ToastController } from '@ionic/angular';
+import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
 @Component({
   selector: 'app-view-event',
@@ -12,13 +13,14 @@ import { ToastController } from '@ionic/angular';
 export class ViewEventPage implements OnInit {
   public event!: Event;
 
-  baseGoogleMapsURL = "https://google.com/maps/search/";
+  //baseGoogleMapsURL = "https://google.com/maps/search/?api=1&query=";
 
   constructor(
     private calService: CalendarService,
     private activatedRoute: ActivatedRoute,
     private calendar: NativeCalendar,
     private toastController: ToastController,
+    private sanitizer: DomSanitizer,
   ) { }
 
   async ngOnInit() {
@@ -32,11 +34,16 @@ export class ViewEventPage implements OnInit {
     const mode = win && win.Ionic && win.Ionic.mode;
     return mode === 'ios' ? 'Calendar' : '';
   }
-
-  replaceSpaces(str: string) {
-    return str.replace(/\s/g, '+');
+/*
+  encodeSearchQuery(query: string) {
+    return encodeURIComponent(query);
   }
 
+  sanitizeUrl(url: string): SafeUrl {
+    console.log(this.sanitizer.bypassSecurityTrustUrl(url));
+    return this.sanitizer.bypassSecurityTrustUrl(url);
+  }
+*/
   async addEventToNativeCalendar(event: Event) {
 
     this.calendar.createEventInteractivelyWithOptions(event.summary, event.location, event.description, event.startDateObject, event.endDateObject, {}).then(
@@ -87,7 +94,7 @@ export class ViewEventPage implements OnInit {
     toast.present();
   }
 
-  getCalendarURL(event: Event): string {
-    return `https://calendar.google.com/calendar/ical/${event.calendarId}/public/basic.ics`;
+  getCalendarURL(calId: string): string {
+    return `https://calendar.google.com/calendar/ical/${calId}/public/basic.ics`;
   }
 }

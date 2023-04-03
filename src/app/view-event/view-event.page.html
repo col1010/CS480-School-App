@@ -7,20 +7,34 @@
 </ion-header>
 
 <ion-content [fullscreen]="true" *ngIf="event">
-  <ion-item>
-    <ion-icon name="calendar"></ion-icon>
-    <ion-label class="ion-text-wrap">
-      <h2>{{ event.calendarName }}</h2>
-    </ion-label>
-  </ion-item>
-  
+  <div class="calendarTitle">
+    <ion-item class="noBorder">
+      <ion-icon name="calendar"></ion-icon>
+      <ion-label class="ion-text-wrap">
+        <h1>{{ event.calendarName }}</h1>
+      </ion-label>
+    </ion-item>
+  </div>
+
+
   <div class="ion-padding">
     <h1>{{ event.summary }}</h1>
-    <ion-note><ion-icon name="time"></ion-icon> {{ event.startDateString }}<span *ngIf="event.startTimeString">, {{ event.startTimeString }} - {{ event.endTimeString }}</span></ion-note><br>
-    <a *ngIf="event.location" [href]="baseGoogleMapsURL + replaceSpaces(event.location)"><ion-note *ngIf="event.location"><ion-icon name="map"></ion-icon> {{ event.location }}</ion-note></a>
+    <ion-note><ion-icon name="time"></ion-icon> {{ event.startDateString }}<span *ngIf="event.startTimeString">, {{
+        event.startTimeString }} - {{ event.endTimeString }}</span></ion-note><br>
+    <!-- <a *ngIf="event.location" [href]="sanitizeUrl(baseGoogleMapsURL + encodeSearchQuery(event.location))"><ion-note
+        *ngIf="event.location"><ion-icon name="map"></ion-icon> {{ event.location }}</ion-note></a> -->
+    <ion-note *ngIf="event.location"><ion-icon name="map"></ion-icon> {{ event.location }}</ion-note>
     <p *ngIf="event.description">Description: {{ event.description }}</p>
     <p *ngIf="!event.description">No description</p>
-    <ion-button [ngStyle]="{'--ripple-color': event.primaryColor}" class="ion-text-wrap" (click)="addEventToNativeCalendar(event)">Add event to calendar</ion-button>
-    <ion-button [ngStyle]="{'--ripple-color': event.primaryColor}" class="ion-text-wrap" [href]="getCalendarURL(event)">Subscribe to {{ event.calendarName }}</ion-button>
   </div>
 </ion-content>
+
+<ion-footer *ngIf="event" class="ion-no-border">
+  <ion-toolbar class="footerToolbar">
+    <ion-button shape="round" [ngStyle]="{'--ripple-color': event.primaryColor}" class="ion-text-wrap footerButton "
+      (click)="addEventToNativeCalendar(event)">Add to My Calendar</ion-button>
+      <br>
+    <ion-button shape="round" [ngStyle]="{'--ripple-color': event.primaryColor}" class="ion-text-wrap footerButton"
+      [href]="getCalendarURL(event.calendarId)">Subscribe to Calendar</ion-button>
+  </ion-toolbar>
+</ion-footer>

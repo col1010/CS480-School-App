@@ -1,5 +1,4 @@
 ion-item {
-  --inner-padding-end: 0;
   --background: transparent;
 }
 
@@ -41,4 +40,30 @@ p {
 
 ion-button {
   text-transform: none;
+  background-color: var(--ion-background-color);
+}
+
+.noBorder {
+  border-style: none;
+}
+
+.calendarTitle {
+  border-bottom-style: solid;
+  border-width: 1px;
+}
+
+.footerToolbar {
+  text-align: center;
+  --ion-toolbar-background: var(--ion-background-color);
+}
+
+.footerButton {
+  width: 80%;
+  margin-bottom: 20px;
+}
+
+ion-footer { 
+  background-color: var(--ion-background-color);
+  padding-top: 20px;
+  padding-bottom: 20px;
 }
