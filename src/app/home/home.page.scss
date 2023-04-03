@@ -5,3 +5,22 @@ ion-checkbox::part(container) {
 h4 {
     text-align: center;
 }
+
+ion-button {
+    text-transform: none;
+    font-size: large;
+}
+
+.moreEventsButton {
+    width: 80%;
+    color: black;
+    font-size: medium;
+}
+
+.centerButton {
+    display: flex;
+    justify-content: center;
+    padding-top: 15px;
+    padding-bottom: 15px;
+    background-color: var(--ion-item-background);
+}
