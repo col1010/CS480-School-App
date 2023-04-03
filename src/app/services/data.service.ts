@@ -89,7 +89,7 @@ export class Calendar {
             } else {
               const d = new Date(event.end.dateTime);
               tmpEvent.endDateObject = d;
-              tmpEvent.endTimeString = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
+              tmpEvent.endTimeString = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' });
             }
             tmpEvent.startDateString = CalendarService.formatDate(tmpEvent.startDateObject);
             console.log(tmpEvent.startDateString);
