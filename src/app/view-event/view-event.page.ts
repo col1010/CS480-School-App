@@ -34,25 +34,25 @@ export class ViewEventPage implements OnInit {
     const mode = win && win.Ionic && win.Ionic.mode;
     return mode === 'ios' ? 'Calendar' : '';
   }
-/*
-  encodeSearchQuery(query: string) {
-    return encodeURIComponent(query);
-  }
-
-  sanitizeUrl(url: string): SafeUrl {
-    console.log(this.sanitizer.bypassSecurityTrustUrl(url));
-    return this.sanitizer.bypassSecurityTrustUrl(url);
-  }
-*/
+  /*
+    encodeSearchQuery(query: string) {
+      return encodeURIComponent(query);
+    }
+  
+    sanitizeUrl(url: string): SafeUrl {
+      console.log(this.sanitizer.bypassSecurityTrustUrl(url));
+      return this.sanitizer.bypassSecurityTrustUrl(url);
+    }
+  */
   async addEventToNativeCalendar(event: Event) {
 
     this.calendar.createEventInteractivelyWithOptions(event.summary, event.location, event.description, event.startDateObject, event.endDateObject, {}).then(
-    () => {
+      () => {
 
-    }, (err) => {
-      this.presentToastNotification("Error creating event!", true);
-    });
-    
+      }, (err) => {
+        this.presentToastNotification("Error creating event!", true);
+      });
+
   }
 
   async getCalendarID(event: Event): Promise<string> {
@@ -94,7 +94,38 @@ export class ViewEventPage implements OnInit {
     toast.present();
   }
 
-  getCalendarURL(calId: string): string {
+  subscribeToCalendar(event: Event) {
+    const options = {
+      calendarName: event.calendarName,
+      url: this.getCalendarUrl(event.calendarId),
+    };
+    this.calendar.deleteCalendar(event.calendarName)
+      .then((success) => {
+        console.log(success);
+      })
+      .catch((err) => {
+        this.presentToastNotification("Error subscribing to calendar", true);
+        console.log(err);
+      })
+  }
+
+  getCalendarUrl(calId: string): string {
     return `https://calendar.google.com/calendar/ical/${calId}/public/basic.ics`;
+  }
+
+  getCalendarList(): Promise<string[]> {
+    return new Promise((resolve, reject) => {
+      this.calendar.listCalendars()
+        .then((calendars) => {
+          const calList = calendars.map(function (calendar: any) {
+            return calendar.name;
+          });
+          resolve(calList);
+        })
+        .catch((err) => {
+          this.presentToastNotification("Error getting calendar list", true);
+          reject([]);
+        });
+    });
   }
 }
