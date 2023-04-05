@@ -5,6 +5,12 @@ import { Calendar as NativeCalendar } from '@awesome-cordova-plugins/calendar/ng
 import { ToastController } from '@ionic/angular';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 
+interface SystemCalendar {
+  id: string;
+  name: string;
+  isPrimary: string;
+}
+
 @Component({
   selector: 'app-view-event',
   templateUrl: './view-event.page.html',
@@ -12,6 +18,8 @@ import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 })
 export class ViewEventPage implements OnInit {
   public event!: Event;
+  calendarList: SystemCalendar[] = [];
+  selectedCalendarId: string = "";
 
   //baseGoogleMapsURL = "https://google.com/maps/search/?api=1&query=";
 
@@ -44,9 +52,19 @@ export class ViewEventPage implements OnInit {
       return this.sanitizer.bypassSecurityTrustUrl(url);
     }
   */
-  async addEventToNativeCalendar(event: Event) {
+  addEventToNativeCalendarInteractively(event: Event) {
 
     this.calendar.createEventInteractivelyWithOptions(event.summary, event.location, event.description, event.startDateObject, event.endDateObject, {}).then(
+      () => {
+
+      }, (err) => {
+        this.presentToastNotification("Error creating event!", true);
+      });
+
+  }
+
+  addEventToNativeCalendarSilently(event: Event) {
+    this.calendar.createEventWithOptions(event.summary, event.location, event.description, event.startDateObject, event.endDateObject, {calendarId: parseInt(this.selectedCalendarId)}).then(
       () => {
 
       }, (err) => {
@@ -94,7 +112,7 @@ export class ViewEventPage implements OnInit {
     toast.present();
   }
 
-  subscribeToCalendar(event: Event) {
+  subscribeToCalendarIOS(event: Event) {
     const options = {
       calendarName: event.calendarName,
       url: this.getCalendarUrl(event.calendarId),
@@ -109,23 +127,37 @@ export class ViewEventPage implements OnInit {
       })
   }
 
+subscribeToCalendarAndroid() {
+  if (this.selectedCalendarId === "") {
+    return;
+  }
+  this.calService.getCalendarList()
+  .then((calList) => {
+    calList.map((cal) => {
+      if (cal.calendarName === this.event.calendarName) {
+        cal.eventList.map((ev) => {
+          this.addEventToNativeCalendarSilently(ev);
+        });
+      }
+    });
+  });
+}
+
   getCalendarUrl(calId: string): string {
     return `https://calendar.google.com/calendar/ical/${calId}/public/basic.ics`;
   }
 
-  getCalendarList(): Promise<string[]> {
-    return new Promise((resolve, reject) => {
-      this.calendar.listCalendars()
-        .then((calendars) => {
-          const calList = calendars.map(function (calendar: any) {
-            return calendar.name;
-          });
-          resolve(calList);
-        })
-        .catch((err) => {
-          this.presentToastNotification("Error getting calendar list", true);
-          reject([]);
+  getCalendarList() {
+    this.calendar.listCalendars()
+      .then(calendars => {
+        this.calendarList = calendars.map((calendar: any) => {
+          console.log(calendar);
+          return { name: calendar.name, id: calendar.id, isPrimary: calendar.isPrimary };
         });
-    });
+      })
+      .catch(err => {
+        console.error(err);
+        this.presentToastNotification("Error getting calendar list", true);
+      });
   }
 }

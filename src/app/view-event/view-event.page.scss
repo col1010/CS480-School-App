@@ -40,7 +40,18 @@ p {
 
 ion-button {
   text-transform: none;
+}
+
+ion-modal {
+  --width: 80%;
+  --height: 70%;
+  --border-radius: 15px;
+}
+
+ion-footer { 
   background-color: var(--ion-background-color);
+  padding-top: 20px;
+  padding-bottom: 20px;
 }
 
 .noBorder {
@@ -60,10 +71,15 @@ ion-button {
 .footerButton {
   width: 80%;
   margin-bottom: 20px;
+  background-color: var(--ion-background-color);
 }
 
-ion-footer { 
-  background-color: var(--ion-background-color);
-  padding-top: 20px;
-  padding-bottom: 20px;
+.radio-group {
+  display: flex;
+  flex-direction: column;
+}
+
+.radio-button {
+  display: flex;
+  align-items: center;
 }
