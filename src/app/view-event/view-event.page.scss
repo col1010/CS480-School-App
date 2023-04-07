@@ -44,14 +44,20 @@ ion-button {
 
 ion-modal {
   --width: 80%;
-  --height: 70%;
+  --height: 50%;
   --border-radius: 15px;
+  --backdrop-opacity: 0.80;
 }
+
 
 ion-footer { 
   background-color: var(--ion-background-color);
   padding-top: 20px;
   padding-bottom: 20px;
+}
+
+.center {
+  text-align: center;
 }
 
 .noBorder {
@@ -74,6 +80,14 @@ ion-footer {
   background-color: var(--ion-background-color);
 }
 
+.googleCalendarButton {
+  width: 80%;
+}
+
+.googleCalendarLogo {
+  width: 50%;
+  height: auto;
+}
 .radio-group {
   display: flex;
   flex-direction: column;
