@@ -115,7 +115,7 @@ export class ViewEventPage implements OnInit {
   subscribeToCalendarIOS(event: Event) {
     const options = {
       calendarName: event.calendarName,
-      url: this.getCalendarUrl(event.calendarId),
+      url: this.getCalendarICSUrl(event.calendarId),
     };
     this.calendar.deleteCalendar(event.calendarName)
       .then((success) => {
@@ -143,8 +143,12 @@ subscribeToCalendarAndroid() {
   });
 }
 
-  getCalendarUrl(calId: string): string {
+  getCalendarICSUrl(calId: string): string {
     return `https://calendar.google.com/calendar/ical/${calId}/public/basic.ics`;
+  }
+
+  getGoogleCalendarUrl(calId: string): string {
+    return `https://calendar.google.com/calendar/r?cid=${calId}`;
   }
 
   getCalendarList() {
