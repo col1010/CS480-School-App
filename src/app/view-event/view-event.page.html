@@ -62,9 +62,9 @@
       (click)="addEventToNativeCalendarInteractively(event)">Add to My Calendar</ion-button>
     <br>
     <ion-button shape="round" [ngStyle]="{'--ripple-color': event.primaryColor}" class="ion-text-wrap footerButton"
-      (click)="subscribeToCalendarIOS(event)">Subscribe to Calendar</ion-button>
+      [href]="getCalendarICSUrl(event.calendarId)">Subscribe to Calendar iOS</ion-button>
     <br>
     <ion-button shape="round" [ngStyle]="{'--ripple-color': event.primaryColor}" class="ion-text-wrap footerButton"
-      id="open-modal" (click)="getCalendarList()">Subscribe to Calendar</ion-button>
+      id="open-modal">Subscribe to Calendar Android</ion-button>
   </ion-toolbar>
 </ion-footer>
