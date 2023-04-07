@@ -27,44 +27,44 @@
     <p *ngIf="event.description">Description: {{ event.description }}</p>
     <p *ngIf="!event.description">No description</p>
   </div>
-
-  <ion-modal #modal trigger="open-modal">
-    <ng-template>
-      <ion-content>
-        <ion-toolbar>
-          <ion-title>Calendar List</ion-title>
-          <ion-buttons slot="end">
-            <ion-button shape="round" (click)="modal.dismiss()">Close</ion-button>
-          </ion-buttons>
-        </ion-toolbar>
-        <h4 style="text-align: center">Choose a calendar to add events to</h4>
-        <ion-radio-group [(ngModel)]="selectedCalendarId" *ngIf="calendarList.length" class="radio-group">
-          <div *ngFor="let cal of calendarList">
-            <ion-item *ngIf="cal.isPrimary">
-              <ion-label>{{ cal.name }}</ion-label>
-              <ion-radio class="radio-button" [value]="cal.id"></ion-radio>
-            </ion-item>
-          </div>
-        </ion-radio-group>
-      </ion-content>
-      <ion-footer style="text-align: center">
-        <ion-button expand="block" shape="round" (click)="subscribeToCalendarAndroid()">
-          Add
-        </ion-button>
-      </ion-footer>
-    </ng-template>
-  </ion-modal>
 </ion-content>
+
+<ion-modal #modal trigger="open-modal">
+  <ng-template>
+    <ion-header class="ion-no-border">
+      <ion-toolbar>
+        <ion-title>Subscribe to Calendar</ion-title>
+        <ion-buttons slot="end">
+          <ion-button shape="round" (click)="modal.dismiss()">Cancel</ion-button>
+        </ion-buttons>
+      </ion-toolbar>
+    </ion-header>
+    <ion-content>
+      <h4 class="center">Sync with Google Calendar</h4>
+      <div class="center">
+        <img class="googleCalendarLogo" src="../../assets/media/gcalendar.png">
+      </div>
+      <p class="ion-padding-right ion-padding-left center">After signing into Google Calendar, tap the "Add" button to
+        subscribe to {{ event.calendarName }}.</p>
+    </ion-content>
+    <ion-footer *ngIf="event" class="ion-no-border">
+      <ion-toolbar class="footerToolbar">
+        <ion-button class="googleCalendarButton ion-text-wrap" shape="round"
+          [href]="getGoogleCalendarUrl(event.calendarId)">Continue to Google Calendar</ion-button>
+      </ion-toolbar>
+    </ion-footer>
+  </ng-template>
+</ion-modal>
 
 <ion-footer *ngIf="event" class="ion-no-border">
   <ion-toolbar class="footerToolbar">
-    <ion-button shape="round" [ngStyle]="{'--ripple-color': event.primaryColor}" class="ion-text-wrap footerButton "
+    <ion-button shape="round" [ngStyle]="{'--ripple-color': event.primaryColor}" class="ion-text-wrap footerButton"
       (click)="addEventToNativeCalendarInteractively(event)">Add to My Calendar</ion-button>
     <br>
     <ion-button shape="round" [ngStyle]="{'--ripple-color': event.primaryColor}" class="ion-text-wrap footerButton"
       (click)="subscribeToCalendarIOS(event)">Subscribe to Calendar</ion-button>
     <br>
     <ion-button shape="round" [ngStyle]="{'--ripple-color': event.primaryColor}" class="ion-text-wrap footerButton"
-      id="open-modal" (click)="getCalendarList()">Open Modal</ion-button>
+      id="open-modal" (click)="getCalendarList()">Subscribe to Calendar</ion-button>
   </ion-toolbar>
 </ion-footer>
