@@ -112,37 +112,6 @@ export class ViewEventPage implements OnInit {
     toast.present();
   }
 
-  subscribeToCalendarIOS(event: Event) {
-    const options = {
-      calendarName: event.calendarName,
-      url: this.getCalendarICSUrl(event.calendarId),
-    };
-    this.calendar.deleteCalendar(event.calendarName)
-      .then((success) => {
-        console.log(success);
-      })
-      .catch((err) => {
-        this.presentToastNotification("Error subscribing to calendar", true);
-        console.log(err);
-      })
-  }
-
-subscribeToCalendarAndroid() {
-  if (this.selectedCalendarId === "") {
-    return;
-  }
-  this.calService.getCalendarList()
-  .then((calList) => {
-    calList.map((cal) => {
-      if (cal.calendarName === this.event.calendarName) {
-        cal.eventList.map((ev) => {
-          this.addEventToNativeCalendarSilently(ev);
-        });
-      }
-    });
-  });
-}
-
   getCalendarICSUrl(calId: string): string {
     return `https://calendar.google.com/calendar/ical/${calId}/public/basic.ics`;
   }
