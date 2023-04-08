@@ -4,6 +4,7 @@ import { CalendarService, Event } from '../services/data.service';
 import { Calendar as NativeCalendar } from '@awesome-cordova-plugins/calendar/ngx';
 import { ToastController } from '@ionic/angular';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
+import { Platform } from '@ionic/angular';
 
 interface SystemCalendar {
   id: string;
@@ -21,6 +22,8 @@ export class ViewEventPage implements OnInit {
   calendarList: SystemCalendar[] = [];
   selectedCalendarId: string = "";
 
+  isIOS: boolean = true;
+
   //baseGoogleMapsURL = "https://google.com/maps/search/?api=1&query=";
 
   constructor(
@@ -29,9 +32,11 @@ export class ViewEventPage implements OnInit {
     private calendar: NativeCalendar,
     private toastController: ToastController,
     private sanitizer: DomSanitizer,
+    private platform: Platform
   ) { }
 
   async ngOnInit() {
+    this.isIOS = this.platform.is("ios");
     const eventId = this.activatedRoute.snapshot.paramMap.get('eventId') as string;
     const calId = this.activatedRoute.snapshot.paramMap.get('calendarId') as string;
     this.event = await this.calService.getEventById(calId, parseInt(eventId, 10));
@@ -59,16 +64,7 @@ export class ViewEventPage implements OnInit {
 
       }, (err) => {
         this.presentToastNotification("Error creating event!", true);
-      });
-
-  }
-
-  addEventToNativeCalendarSilently(event: Event) {
-    this.calendar.createEventWithOptions(event.summary, event.location, event.description, event.startDateObject, event.endDateObject, {calendarId: parseInt(this.selectedCalendarId)}).then(
-      () => {
-
-      }, (err) => {
-        this.presentToastNotification("Error creating event!", true);
+        console.log(err);
       });
 
   }
