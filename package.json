@@ -22,7 +22,7 @@
         "@awesome-cordova-plugins/calendar": "^6.3.0",
         "@capacitor/android": "4.6.3",
         "@capacitor/app": "4.1.1",
-        "@capacitor/core": "4.6.3",
+        "@capacitor/core": "^4.6.3",
         "@capacitor/haptics": "4.1.0",
         "@capacitor/ios": "4.6.3",
         "@capacitor/keyboard": "4.1.1",

@@ -6,6 +6,7 @@ import { ToastController } from '@ionic/angular';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { Platform } from '@ionic/angular';
 
+
 interface SystemCalendar {
   id: string;
   name: string;
@@ -63,37 +64,10 @@ export class ViewEventPage implements OnInit {
       () => {
 
       }, (err) => {
-        this.presentToastNotification("Error creating event!", true);
+        this.presentToastNotification("Error creating event! Does the app have permission to access your Calendar?", true);
         console.log(err);
       });
 
-  }
-
-  async getCalendarID(event: Event): Promise<string> {
-    const calendars = await this.calendar.listCalendars();
-    const cal = await calendars.find((calendar: any) => calendar.name === event.calendarName);
-    console.log("Calendars: ", calendars);
-    var calID;
-    if (!cal) {
-      calID = await this.createCalendar(event);
-    } else {
-      calID = cal.id;
-    }
-    return calID;
-  }
-
-  async createCalendar(event: Event): Promise<string | undefined> {
-    let calOptions = {
-      calendarName: event.calendarName,
-      calendarColor: event.primaryColor
-    }
-    var calID: string | undefined;
-    this.calendar.createCalendar(calOptions).then((result) => {
-      calID = result;
-    }).catch((err) => {
-      calID = undefined;
-    })
-    return calID;
   }
 
   async presentToastNotification(message: string, error: boolean) {
@@ -101,7 +75,7 @@ export class ViewEventPage implements OnInit {
     error ? color = 'danger' : color = 'success';
     const toast = await this.toastController.create({
       message: message,
-      duration: 3000,
+      duration: 6000,
       position: 'bottom',
       color: color
     });
