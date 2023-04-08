@@ -3,6 +3,8 @@ import { environment } from 'src/environments/environment';
 
 import { Calendar, CalendarService, Event } from '../services/data.service';
 
+import { ScreenOrientation } from '@ionic-native/screen-orientation/ngx';
+
 @Component({
   selector: 'app-home',
   templateUrl: 'home.page.html',
@@ -25,10 +27,12 @@ export class HomePage implements OnInit {
   dateOptions: any;
   formatter: any;
 
-  constructor(private calService: CalendarService) {
+  constructor(private calService: CalendarService, private screenOrientation: ScreenOrientation) {
     this.endIndex = 15;
     this.moreEventsButtonDisabled = false;
     this.moreEventsButtonShown = false;
+
+    this.screenOrientation.lock(this.screenOrientation.ORIENTATIONS.PORTRAIT_PRIMARY);
 
     this.dateOptions = {
       weekday: 'long',
@@ -36,7 +40,7 @@ export class HomePage implements OnInit {
       day: 'numeric',
       year: 'numeric',
     };
-    
+
     this.formatter = new Intl.DateTimeFormat('en-US', this.dateOptions);
   };
 
