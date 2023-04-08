@@ -29,6 +29,18 @@
   </div>
 </ion-content>
 
+<ion-footer *ngIf="event" class="ion-no-border">
+  <ion-toolbar class="footerToolbar">
+    <ion-button shape="round" [ngStyle]="{'--ripple-color': event.primaryColor}" class="ion-text-wrap footerButton"
+      (click)="addEventToNativeCalendarInteractively(event)">Add to My Calendar</ion-button>
+    <br>
+    <ion-button *ngIf="isIOS" shape="round" [ngStyle]="{'--ripple-color': event.primaryColor}" class="ion-text-wrap footerButton"
+      [href]="getCalendarICSUrl(event.calendarId)">Subscribe to Calendar iOS</ion-button>
+    <ion-button *ngIf="!isIOS" shape="round" [ngStyle]="{'--ripple-color': event.primaryColor}" class="ion-text-wrap footerButton"
+      id="open-modal">Subscribe to Calendar Android</ion-button>
+  </ion-toolbar>
+</ion-footer>
+
 <ion-modal #modal trigger="open-modal">
   <ng-template>
     <ion-header class="ion-no-border">
@@ -55,16 +67,3 @@
     </ion-footer>
   </ng-template>
 </ion-modal>
-
-<ion-footer *ngIf="event" class="ion-no-border">
-  <ion-toolbar class="footerToolbar">
-    <ion-button shape="round" [ngStyle]="{'--ripple-color': event.primaryColor}" class="ion-text-wrap footerButton"
-      (click)="addEventToNativeCalendarInteractively(event)">Add to My Calendar</ion-button>
-    <br>
-    <ion-button shape="round" [ngStyle]="{'--ripple-color': event.primaryColor}" class="ion-text-wrap footerButton"
-      [href]="getCalendarICSUrl(event.calendarId)">Subscribe to Calendar iOS</ion-button>
-    <br>
-    <ion-button shape="round" [ngStyle]="{'--ripple-color': event.primaryColor}" class="ion-text-wrap footerButton"
-      id="open-modal">Subscribe to Calendar Android</ion-button>
-  </ion-toolbar>
-</ion-footer>
