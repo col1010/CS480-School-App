@@ -1,0 +1,6 @@
+.angular
+node_modules
+www
+src/environments
+.vscode
+package-lock.json
