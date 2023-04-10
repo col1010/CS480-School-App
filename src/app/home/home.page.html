@@ -43,6 +43,6 @@
     <ion-item *ngIf="!eventList.length">No events to display!</ion-item>
   </ion-list>
   <div class="centerButton">
-    <ion-button shape="round" class="moreEventsButton" *ngIf="moreEventsButtonShown" (click)="loadNextPage()" [disabled]="moreEventsButtonDisabled" expand="block">Load More Events</ion-button>
+    <ion-button shape="round" class="moreEventsButton" *ngIf="moreEventsButtonShown" (click)="loadMoreEvents()" [disabled]="moreEventsButtonDisabled" expand="block">Load More Events</ion-button>
   </div>
 </ion-content>

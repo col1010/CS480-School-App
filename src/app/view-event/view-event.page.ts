@@ -94,7 +94,7 @@ export class ViewEventPage implements OnInit {
     this.calendar.listCalendars()
       .then(calendars => {
         this.calendarList = calendars.map((calendar: any) => {
-          console.log(calendar);
+          //console.log(calendar);
           return { name: calendar.name, id: calendar.id, isPrimary: calendar.isPrimary };
         });
       })

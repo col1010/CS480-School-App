@@ -2,7 +2,6 @@ import { Component, OnInit } from '@angular/core';
 import { environment } from 'src/environments/environment';
 
 import { Calendar, CalendarService, Event } from '../services/data.service';
-import { Platform } from '@ionic/angular';
 
 @Component({
   selector: 'app-home',
@@ -24,9 +23,8 @@ export class HomePage implements OnInit {
   moreEventsButtonShown: boolean;
 
   dateOptions: any;
-  formatter: any;
 
-  constructor(private calService: CalendarService, private platform: Platform) {
+  constructor(private calService: CalendarService) {
     this.endIndex = 15;
     this.moreEventsButtonDisabled = false;
     this.moreEventsButtonShown = false;
@@ -37,8 +35,6 @@ export class HomePage implements OnInit {
       day: 'numeric',
       year: 'numeric',
     };
-
-    this.formatter = new Intl.DateTimeFormat('en-US', this.dateOptions);
   };
 
   ngOnInit() {
@@ -55,22 +51,22 @@ export class HomePage implements OnInit {
 
   async handleRefresh(event: any) {
     await this.calService.updateAllCalendars();
-    await this.refreshEvents();
+    this.refreshEvents();
     event.target.complete();
   }
 
   async ionViewDidEnter() {
     if (!this.eventsLoaded) {
       await this.calService.updateAllCalendars();
-      await this.refreshEvents();
-      console.log("sorted: ", this.eventList);
+      this.refreshEvents();
+      //console.log("sorted: ", this.eventList);
       this.eventsLoaded = true;
     }
   }
 
   async refreshEvents() {
     const combinedEventList = (await this.calService.getCalendarList()).reduce((acc, cal) => acc.concat(cal.eventList), [] as Event[]);
-    console.log("combinedEventList: ", combinedEventList);
+    //console.log("combinedEventList: ", combinedEventList);
     this.eventList = await this.sortEvents(combinedEventList);
     this.dateList = Array.from(new Set(this.getEvents().map(event => CalendarService.formatDate(event.startDateObject))));
   }
@@ -93,13 +89,13 @@ export class HomePage implements OnInit {
         this.endIndex = this.eventList.length;
         this.moreEventsButtonDisabled = true;
       }
-      console.log("sliced array: ", this.eventList.slice(0, this.endIndex));
+      //console.log("sliced array: ", this.eventList.slice(0, this.endIndex));
       this.moreEventsButtonShown = true;
       return this.eventList.slice(0, this.endIndex);
     }
   }
 
-  loadNextPage() {
+  loadMoreEvents() {
     this.endIndex += 15;
     this.refreshEvents();
   }
@@ -113,10 +109,10 @@ export class HomePage implements OnInit {
     } else {
       localStorage.setItem(cal.name, "unchecked");
     }
-    this.calService.changeCheckedStatus(cal.name);
-    console.log("Changing events...");
+    this.calService.changeCheckedStatus(cal.name, isChecked);
+    //console.log("Changing events...");
     await this.refreshEvents();
-    console.log("Done");
+    //console.log("Done");
 
   }
 }

@@ -92,7 +92,7 @@ export class Calendar {
               tmpEvent.endTimeString = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' });
             }
             tmpEvent.startDateString = CalendarService.formatDate(tmpEvent.startDateObject);
-            console.log(tmpEvent.startDateString);
+            //console.log(tmpEvent.startDateString);
             tmpEvent.location = event.location;
             tmpEvent.description = event.description;
             tmpEvent.id = id++;
@@ -146,10 +146,10 @@ export class CalendarService {
       for (let i = 0; i < this.calendars.length; i++) {
         if (this.calendars[i].checked) {
           tmp.push(this.calendars[i]);
-          console.log("Pushing ", this.calendars[i].calendarName);
+          //console.log("Pushing ", this.calendars[i].calendarName);
         }
       }
-      console.log("tmp: ", tmp);
+      //console.log("tmp: ", tmp);
       resolve(tmp);
     });
   }
@@ -183,10 +183,10 @@ export class CalendarService {
     return false;
   }
 
-  changeCheckedStatus(name: string) {
+  changeCheckedStatus(name: string, checked: boolean) {
     for (let i = 0; i < this.calendars.length; i++) {
       if (this.calendars[i].calendarName === name) {
-        this.calendars[i].checked = !this.calendars[i].checked;
+        this.calendars[i].checked = checked;
       }
     }
   }
