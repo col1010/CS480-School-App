@@ -40,7 +40,8 @@
         <app-event *ngIf="date === event.startDateString" [event]="event"></app-event>
       </div>
     </div>
-    <ion-item *ngIf="!eventList.length">No events to display!</ion-item>
+    <ion-item *ngIf="!eventList.length && !calService.noCalendarsChecked()">No events to display!</ion-item>
+    <ion-item *ngIf="calService.noCalendarsChecked()">No calendars selected! Select calendars from the menu on the left.</ion-item>
   </ion-list>
   <div class="centerButton">
     <ion-button shape="round" class="moreEventsButton" *ngIf="moreEventsButtonShown" (click)="loadMoreEvents()" [disabled]="moreEventsButtonDisabled" expand="block">Load More Events</ion-button>

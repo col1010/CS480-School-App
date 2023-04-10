@@ -154,6 +154,15 @@ export class CalendarService {
     });
   }
 
+  public noCalendarsChecked(): boolean {
+    for (let i = 0; i < this.calendars.length; i++) {
+      if (this.calendars[i].checked) {
+        return false;
+      }
+    }
+    return true;
+  }
+
   public updateAllCalendars(): Promise<void> {
     return new Promise<void>(async (resolve) => {
       const promises = this.calendars.map(cal => cal.populateEventList());

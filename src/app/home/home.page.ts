@@ -24,7 +24,7 @@ export class HomePage implements OnInit {
 
   dateOptions: any;
 
-  constructor(private calService: CalendarService) {
+  constructor(public calService: CalendarService) {
     this.endIndex = 15;
     this.moreEventsButtonDisabled = false;
     this.moreEventsButtonShown = false;
