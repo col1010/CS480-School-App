@@ -1,8 +1,8 @@
 import { CapacitorConfig } from '@capacitor/cli';
 
 const config: CapacitorConfig = {
-  appId: 'io.ionic.starter',
-  appName: 'LewistonSchools',
+  appId: 'com.LewistonSchools.EventApp',
+  appName: 'Lewiston School District Events',
   webDir: 'www',
   bundledWebRuntime: false
 };
