@@ -41,7 +41,7 @@
   </ion-toolbar>
 </ion-footer>
 
-<ion-modal *ngIf="!isIOS" #modal trigger="open-modal">
+<ion-modal *ngIf="deviceReady && !isIOS" #modal trigger="open-modal">
   <ng-template>
     <ion-header class="ion-no-border">
       <ion-toolbar>

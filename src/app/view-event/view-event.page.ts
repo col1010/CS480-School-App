@@ -24,6 +24,7 @@ export class ViewEventPage implements OnInit {
   selectedCalendarId: string = "";
 
   isIOS: boolean = true;
+  deviceReady: boolean = false;
 
   //baseGoogleMapsURL = "https://google.com/maps/search/?api=1&query=";
 
@@ -34,7 +35,11 @@ export class ViewEventPage implements OnInit {
     private toastController: ToastController,
     private sanitizer: DomSanitizer,
     private platform: Platform
-  ) { }
+  ) {
+    platform.ready().then(() => {
+      this.deviceReady = true;
+    })
+   }
 
   async ngOnInit() {
     this.isIOS = this.platform.is("ios");
