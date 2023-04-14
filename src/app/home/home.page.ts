@@ -1,5 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { environment } from 'src/environments/environment';
+import { AlertController } from '@ionic/angular';
+import { Platform } from '@ionic/angular';
 
 import { Calendar, CalendarService, Event } from '../services/data.service';
 
@@ -24,11 +26,11 @@ export class HomePage implements OnInit {
 
   dateOptions: any;
 
-  constructor(public calService: CalendarService) {
+  constructor(public calService: CalendarService, private alertController: AlertController, private platform: Platform) {
     this.endIndex = 15;
     this.moreEventsButtonDisabled = false;
     this.moreEventsButtonShown = false;
-  
+
     this.dateOptions = {
       weekday: 'long',
       month: 'long',
@@ -37,16 +39,41 @@ export class HomePage implements OnInit {
     };
   };
 
-  ngOnInit() {
-    this.envCalList = environment.calendarIds;
-    for (let i = 0; i < this.envCalList.length; i++) {
-      if (localStorage.getItem(this.envCalList[i].name) === "checked") {
-        this.selectedCalendars.push(this.envCalList[i].name);
-        this.calService.addCalendar(new Calendar(this.envCalList[i].name, true));
-      } else {
-        this.calService.addCalendar(new Calendar(this.envCalList[i].name, false));
+  async ngOnInit() {
+    await this.platform.ready();
+    await this.initializeCalendars();
+    this.initializeEvents();
+  }
+
+  initializeCalendars(): Promise<void> {
+    return new Promise<void>(async (resolve) => {
+      this.envCalList = environment.calendarIds;
+
+      if (!localStorage.getItem("firstOpen")) { // first time opening the app
+        const defaultCalendarName = 'Independent School District #1';
+        const defaultCalendar = this.envCalList.find((cal) => cal.name === defaultCalendarName);
+        if (defaultCalendar) {
+          this.selectedCalendars.push(defaultCalendar);
+          localStorage.setItem(defaultCalendarName, 'checked');
+        }
+        const alert = await this.alertController.create({
+          header: 'Welcome to the Independent School District Calendar App!',
+          message: 'You can select school calendars to view using the menu on the left. By default, only the district calendar has been selected.',
+          buttons: ['Got it!']
+        });
+        await alert.present();
+        localStorage.setItem("firstOpen", "false");
       }
-    }
+      for (let i = 0; i < this.envCalList.length; i++) {
+        if (localStorage.getItem(this.envCalList[i].name) === "checked") {
+          this.selectedCalendars.push(this.envCalList[i].name);
+          this.calService.addCalendar(new Calendar(this.envCalList[i].name, true));
+        } else {
+          this.calService.addCalendar(new Calendar(this.envCalList[i].name, false));
+        }
+      }
+      resolve();
+    })
   }
 
   async handleRefresh(event: any) {
@@ -55,7 +82,7 @@ export class HomePage implements OnInit {
     event.target.complete();
   }
 
-  async ionViewDidEnter() {
+  async initializeEvents() {
     if (!this.eventsLoaded) {
       await this.calService.updateAllCalendars();
       this.refreshEvents();
