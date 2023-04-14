@@ -51,7 +51,7 @@ ion-modal {
 
 
 ion-footer { 
-  background-color: var(--ion-background-color);
+  background-color: transparent;
   padding-top: 20px;
   padding-bottom: 20px;
 }
@@ -71,13 +71,13 @@ ion-footer {
 
 .footerToolbar {
   text-align: center;
-  --ion-toolbar-background: var(--ion-background-color);
+  --background: transparent;
 }
 
 .footerButton {
   width: 80%;
   margin-bottom: 20px;
-  background-color: var(--ion-background-color);
+  background-color: transparent;
 }
 
 .googleCalendarButton {
