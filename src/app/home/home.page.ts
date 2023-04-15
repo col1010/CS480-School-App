@@ -64,7 +64,7 @@ export class HomePage implements OnInit {
       }
       for (let i = 0; i < this.envCalList.length; i++) {
         if (localStorage.getItem(this.envCalList[i].names[0]) === "checked") {
-          console.log(this.envCalList[i].names[0], " is checked!");
+          // console.log(this.envCalList[i].names[0], " is checked!");
           this.selectedCalendars.push(this.envCalList[i].names[0]);
           this.calService.addCalendar(new Calendar(this.envCalList[i].names[0], true));
         } else {
@@ -86,9 +86,9 @@ export class HomePage implements OnInit {
     const combinedEventList = (await this.calService.getCalendarList()).reduce((acc, cal) => acc.concat(cal.eventLists), [] as Event[][]);
     this.eventList = await this.sortEvents(([] as Event[]).concat(...combinedEventList));
     this.dateList = Array.from(new Set(this.getEvents().map(event => CalendarService.formatDate(event.startDateObject))));
-    console.log("combinedEventList: ", combinedEventList);
-    console.log("eventList: ", this.eventList);
-    console.log("dateList:", this.dateList);
+    // console.log("combinedEventList: ", combinedEventList);
+    // console.log("eventList: ", this.eventList);
+    // console.log("dateList:", this.dateList);
   }
 
   async sortEvents(events: Event[]) {

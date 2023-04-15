@@ -1,5 +1,5 @@
 <div class="bottom-line">
-  <ion-item *ngIf="event" [routerLink]="'/calendar/' + event.calendarId + '/event/' + event.id" [detail]="false" [ngStyle]="{'border-left-color': (event.secondaryColor == '') ? '' : event.secondaryColor}">
+  <ion-item *ngIf="event" [routerLink]="event.calendarId + '/' + event.id" [detail]="false" [ngStyle]="{'border-left-color': (event.secondaryColor == '') ? '' : event.secondaryColor}">
     <ion-label>
       <ion-note *ngIf="event.startTimeString" class="date" >{{ event.startTimeString }} - {{ event.endTimeString }}</ion-note>
       <h2>{{ event.summary }}</h2>
