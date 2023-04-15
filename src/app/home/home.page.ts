@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, NgZone, OnInit } from '@angular/core';
 import { environment } from 'src/environments/environment';
 import { AlertController } from '@ionic/angular';
 import { Platform } from '@ionic/angular';
@@ -13,8 +13,6 @@ import { Calendar, CalendarService, Event } from '../services/data.service';
 export class HomePage implements OnInit {
 
   eventList: Event[] = [];
-  tmpEventList: Event[] = [];
-  eventsLoaded = false;
   envCalList: any[] = [];
   dateList: string[] = [];
   selectedCalendars: string[] = [];
@@ -42,16 +40,16 @@ export class HomePage implements OnInit {
   async ngOnInit() {
     await this.platform.ready();
     await this.initializeCalendars();
-    this.initializeEvents();
+    this.refreshEvents();
   }
 
   initializeCalendars(): Promise<void> {
     return new Promise<void>(async (resolve) => {
-      this.envCalList = environment.calendarIds;
+      this.envCalList = environment.calendars;
 
       if (!localStorage.getItem("firstOpen")) { // first time opening the app
         const defaultCalendarName = 'Independent School District #1';
-        const defaultCalendar = this.envCalList.find((cal) => cal.name === defaultCalendarName);
+        const defaultCalendar = this.envCalList.find((cal) => cal.names.includes(defaultCalendarName));
         if (defaultCalendar) {
           this.selectedCalendars.push(defaultCalendar);
           localStorage.setItem(defaultCalendarName, 'checked');
@@ -65,13 +63,15 @@ export class HomePage implements OnInit {
         localStorage.setItem("firstOpen", "false");
       }
       for (let i = 0; i < this.envCalList.length; i++) {
-        if (localStorage.getItem(this.envCalList[i].name) === "checked") {
-          this.selectedCalendars.push(this.envCalList[i].name);
-          this.calService.addCalendar(new Calendar(this.envCalList[i].name, true));
+        if (localStorage.getItem(this.envCalList[i].names[0]) === "checked") {
+          console.log(this.envCalList[i].names[0], " is checked!");
+          this.selectedCalendars.push(this.envCalList[i].names[0]);
+          this.calService.addCalendar(new Calendar(this.envCalList[i].names[0], true));
         } else {
-          this.calService.addCalendar(new Calendar(this.envCalList[i].name, false));
+          this.calService.addCalendar(new Calendar(this.envCalList[i].names[0], false));
         }
       }
+      await this.calService.updateAllCalendars();
       resolve();
     })
   }
@@ -82,20 +82,13 @@ export class HomePage implements OnInit {
     event.target.complete();
   }
 
-  async initializeEvents() {
-    if (!this.eventsLoaded) {
-      await this.calService.updateAllCalendars();
-      this.refreshEvents();
-      //console.log("sorted: ", this.eventList);
-      this.eventsLoaded = true;
-    }
-  }
-
   async refreshEvents() {
-    const combinedEventList = (await this.calService.getCalendarList()).reduce((acc, cal) => acc.concat(cal.eventList), [] as Event[]);
-    //console.log("combinedEventList: ", combinedEventList);
-    this.eventList = await this.sortEvents(combinedEventList);
+    const combinedEventList = (await this.calService.getCalendarList()).reduce((acc, cal) => acc.concat(cal.eventLists), [] as Event[][]);
+    this.eventList = await this.sortEvents(([] as Event[]).concat(...combinedEventList));
     this.dateList = Array.from(new Set(this.getEvents().map(event => CalendarService.formatDate(event.startDateObject))));
+    console.log("combinedEventList: ", combinedEventList);
+    console.log("eventList: ", this.eventList);
+    console.log("dateList:", this.dateList);
   }
 
   async sortEvents(events: Event[]) {
@@ -132,14 +125,13 @@ export class HomePage implements OnInit {
     this.moreEventsButtonDisabled = false;
     this.endIndex = 15;
     if (isChecked) {
-      localStorage.setItem(cal.name, "checked");
+      localStorage.setItem(cal.names[0], "checked");
     } else {
-      localStorage.setItem(cal.name, "unchecked");
+      localStorage.setItem(cal.names[0], "unchecked");
     }
-    this.calService.changeCheckedStatus(cal.name, isChecked);
+    this.calService.changeCheckedStatus(cal.names[0], isChecked);
     //console.log("Changing events...");
-    await this.refreshEvents();
+    this.refreshEvents();
     //console.log("Done");
-
   }
 }

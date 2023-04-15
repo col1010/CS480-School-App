@@ -21,48 +21,55 @@ export interface Event {
 }
 
 export class Calendar {
-  calendarId: string = '';
-  calendarName: string = '';
+  calendarIds: string[] = [];
+  calendarNames: string[] = [];
   checked: boolean = false;
   primaryColor: string = '';
   secondaryColor: string = '';
-  eventList: Event[] = [];
+  eventLists: Event[][] = [];
 
   constructor(calendarName: string, checked: boolean) {
     var cal = undefined;
-    for (let i = 0; i < environment.calendarIds.length; i++) {
-      if (environment.calendarIds[i].name === calendarName) {
-        cal = environment.calendarIds[i];
+    for (let i = 0; i < environment.calendars.length; i++) {
+      for (let j = 0; j < environment.calendars[i].names.length; j++) {
+        if (environment.calendars[i].names[j] === calendarName) {
+          cal = environment.calendars[i];
+        }
       }
+
     }
     if (cal) {
-      this.calendarId = cal.calendarId;
-      this.calendarName = cal.name;
+      this.calendarIds = cal.calendarIds;
+      this.calendarNames = cal.names;
       this.primaryColor = cal.primaryColor;
       this.secondaryColor = cal.secondaryColor;
       this.checked = checked;
-      this.eventList = [];
+      this.eventLists = [];
     } else {
       throw new Error("Invalid Calendar Name");
     }
   }
 
   async populateEventList() {
-    return new Promise<void>(async (resolve, reject) => {
-      this.eventList = [];
-      var url = `https://www.googleapis.com/calendar/v3/calendars/${this.calendarId}/events`;
-      const now = new Date();
-      var oneYear = new Date();
-      oneYear.setFullYear(now.getFullYear() + 1);
-      const params = {
-        key: environment.calendarApiKey,
-        timeMin: now.toISOString(),
-        timeMax: oneYear.toISOString(),
-        singleEvents: true,
-        orderBy: "startTime"
-      }
+    this.eventLists = [];
+    for (let i = 0; i < this.calendarIds.length; i++) {
+      this.eventLists.push([] as Event[]);
+    }
+    const now = new Date();
+    now.setMonth(now.getMonth() - 1);
+    var oneYear = new Date();
+    oneYear.setFullYear(now.getFullYear() + 1);
+    const params = {
+      key: environment.calendarApiKey,
+      timeMin: now.toISOString(),
+      timeMax: oneYear.toISOString(),
+      singleEvents: true,
+      orderBy: "startTime"
+    }
+    const promises = this.calendarIds.map((calendarId, index) => {
+      var url = `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`;
 
-      axios.get(url, { params: params })
+      return axios.get(url, { params: params })
 
         .then(response => {
           //console.log(response.data);
@@ -96,19 +103,17 @@ export class Calendar {
             tmpEvent.location = event.location;
             tmpEvent.description = event.description;
             tmpEvent.id = id++;
-            tmpEvent.calendarId = this.calendarId;
+            tmpEvent.calendarId = this.calendarIds[index];
             tmpEvent.primaryColor = this.primaryColor;
             tmpEvent.secondaryColor = this.secondaryColor;
-            this.eventList.push(tmpEvent);
+            this.eventLists[index].push(tmpEvent);
           }
-          //console.log(this.eventList);
-          resolve();
         })
         .catch(error => {
           console.log(error);
-          reject();
         });
     });
+    await Promise.all(promises);
   }
 
   private emptyEvent(): Event {
@@ -175,27 +180,13 @@ export class CalendarService {
     this.calendars.push(cal);
   }
 
-  removeCalendar(name: string) {
-    for (let i = 0; i < this.calendars.length; i++) {
-      if (this.calendars[i].calendarName === name) {
-        this.calendars.splice(i, 1);
-      }
-    }
-  }
-
-  isSelected(name: string): boolean {
-    for (let i = 0; i < this.calendars.length; i++) {
-      if (this.calendars[i].calendarName === name) {
-        return true;
-      }
-    }
-    return false;
-  }
-
   changeCheckedStatus(name: string, checked: boolean) {
     for (let i = 0; i < this.calendars.length; i++) {
-      if (this.calendars[i].calendarName === name) {
-        this.calendars[i].checked = checked;
+      for (let j = 0; j < environment.calendars[i].names.length; j++) {
+        if (this.calendars[i].calendarNames[j] === name) {
+          this.calendars[i].checked = checked;
+          return;
+        }
       }
     }
   }
@@ -203,11 +194,13 @@ export class CalendarService {
   getEventById(calId: any, eventId: any) {
     return new Promise<Event>((resolve, reject) => {
       for (let i = 0; i < this.calendars.length; i++) {
-        if (this.calendars[i].calendarId === calId) {
-          if (this.calendars[i].eventList[eventId] === undefined) {
-            reject("Invalid Event");
-          } else {
-            resolve(this.calendars[i].eventList[eventId]);
+        for (let j = 0; j < environment.calendars[i].calendarIds.length; j++) {
+          if (this.calendars[i].calendarIds[j] === calId) {
+            if (this.calendars[i].eventLists[j][eventId] === undefined) {
+              reject("Invalid Event");
+            } else {
+              resolve(this.calendars[i].eventLists[j][eventId]);
+            }
           }
         }
       }
@@ -216,6 +209,6 @@ export class CalendarService {
   }
 
   static formatDate(date: Date): string {
-    return weekdays[date.getDay()] + ' ' + date.toLocaleDateString('en-US', {month: 'long', day: 'numeric', year: 'numeric'});
+    return weekdays[date.getDay()] + ' ' + date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
   }
 }
