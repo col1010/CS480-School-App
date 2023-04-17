@@ -83,7 +83,7 @@ export class HomePage implements OnInit, OnDestroy {
     const combinedEventList = (await this.calService.getCalendarList()).reduce((acc, cal) => acc.concat(cal.eventLists), [] as Event[][]);
     this.eventList = await this.sortEvents(([] as Event[]).concat(...combinedEventList));
     this.dateList = Array.from(new Set(this.getEvents().map(event => CalendarService.formatDate(event.startDateObject))));
-     console.log("combinedEventList: ", combinedEventList);
+    //console.log("combinedEventList: ", combinedEventList);
     // console.log("eventList: ", this.eventList);
     // console.log("dateList:", this.dateList);
   }

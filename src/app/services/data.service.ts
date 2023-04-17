@@ -2,6 +2,7 @@ import { Injectable, EventEmitter } from '@angular/core';
 import axios from 'axios';
 import { environment } from 'src/environments/environment';
 import { convert } from 'html-to-text';
+import { CapacitorHttp } from '@capacitor/core';
 
 const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
 
@@ -47,15 +48,16 @@ export class Blog {
   }
 
   async populateBlogPosts() {
-    const params = {
-      _fields: "title,excerpt,date,featured_media"
+    const options = {
+      url: this.postUrl,
+      params: {_fields: "title,excerpt,date,featured_media"}
     }
 
-    axios.get(this.postUrl, {params: params})
+    CapacitorHttp.get(options)
     .then(response => {
       //console.log(this.postUrl);
-      //console.log(response.data);
-      const posts = response.data
+      console.log("RESPONSE: ", response);
+      const posts = response.data;
       for (const post of posts) {
         let tmpPost = this.emptyPost();
         tmpPost.title = post.title.rendered;
