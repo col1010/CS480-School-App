@@ -7,6 +7,7 @@ import { IonicModule } from '@ionic/angular';
 import { TabnavPageRoutingModule } from './tabnav-routing.module';
 
 import { TabnavPage } from './tabnav.page';
+import { MenuComponent } from '../menu/menu.component';
 
 @NgModule({
   imports: [
@@ -15,6 +16,6 @@ import { TabnavPage } from './tabnav.page';
     IonicModule,
     TabnavPageRoutingModule,
   ],
-  declarations: [TabnavPage]
+  declarations: [TabnavPage, MenuComponent]
 })
 export class TabnavPageModule {}
