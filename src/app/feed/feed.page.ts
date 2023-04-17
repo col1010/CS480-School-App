@@ -1,4 +1,8 @@
 import { Component, OnInit } from '@angular/core';
+import { CalendarService } from '../app.module';
+import { Subscription } from 'rxjs';
+import { Post } from '../services/data.service';
+import { Platform } from '@ionic/angular';
 
 @Component({
   selector: 'app-feed',
@@ -7,9 +11,21 @@ import { Component, OnInit } from '@angular/core';
 })
 export class FeedPage implements OnInit {
 
-  constructor() { }
+  subscription: Subscription = new Subscription();
+  postList: Post[] = [];
 
-  ngOnInit() {
+  constructor(private calService: CalendarService, private platform: Platform) { }
+
+  async ngOnInit() {
+    await this.platform.ready();
+    this.subscription = this.calService.selectedCalendarsChanged.subscribe(() => {
+      console.log("Changed (feed component)!");
+      this.calService.getBlogPosts()
+      .then(result => {
+        this.postList = result;
+        console.log("POST LIST: ", this.postList);
+      });
+    });
   }
 
 }

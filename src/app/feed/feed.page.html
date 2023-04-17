@@ -1,9 +1,18 @@
-<ion-header>
-  <ion-toolbar>
-    <ion-title>Feed</ion-title>
-  </ion-toolbar>
-</ion-header>
+<div id="main-content">
+  <ion-header>
+    <ion-toolbar>
+      <ion-buttons slot="start">
+        <ion-menu-button></ion-menu-button>
+      </ion-buttons>
+      <ion-title>School Calendars</ion-title>
+    </ion-toolbar>
+  </ion-header>
+</div>
 
 <ion-content>
-
+  <ion-list lines="none">
+    <div *ngFor="let post of postList">
+      <app-post [post]="post"></app-post>
+    </div>
+  </ion-list>
 </ion-content>
