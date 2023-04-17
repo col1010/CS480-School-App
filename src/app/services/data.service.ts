@@ -1,8 +1,20 @@
-import { Injectable } from '@angular/core';
+import { Injectable, EventEmitter } from '@angular/core';
 import axios from 'axios';
 import { environment } from 'src/environments/environment';
+import { convert } from 'html-to-text';
 
 const weekdays = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+export interface Post {
+  title: string;
+  dateObject: Date;
+  dateString: string
+  url: string;
+  featuredMediaUrl: string | undefined;
+  excerpt: string;
+  color: string;
+  calendarName: string;
+}
 
 export interface Event {
   summary: string;
@@ -20,6 +32,69 @@ export interface Event {
   description: string;
 }
 
+export class Blog {
+  private postUrl: string = '';
+  private mediaUrl: string = '';
+  private calendarName: string;
+  private color: string;
+  postList: Post[] = [];
+
+  constructor(schoolCode: string, color: string, calendarName: string) {
+    this.postUrl = `https://www.lewistonschools.net/${schoolCode}/wp-json/wp/v2/posts`;
+    this.mediaUrl = `https://www.lewistonschools.net/${schoolCode}/wp-json/wp/v2/media/`; // insert media id at end
+    this.color = color;
+    this.calendarName = calendarName;
+  }
+
+  async populateBlogPosts() {
+    const params = {
+      _fields: "title,excerpt,date,featured_media"
+    }
+
+    axios.get(this.postUrl, {params: params})
+    .then(response => {
+      //console.log(this.postUrl);
+      //console.log(response.data);
+      const posts = response.data
+      for (const post of posts) {
+        let tmpPost = this.emptyPost();
+        tmpPost.title = post.title.rendered;
+        tmpPost.dateObject = new Date(post.date);
+        tmpPost.dateString = CalendarService.formatDate(tmpPost.dateObject);
+        tmpPost.url = post.link;
+        tmpPost.color = this.color;
+        tmpPost.calendarName = this.calendarName;
+        tmpPost.excerpt = convert(post.excerpt.rendered.toString(), {wordwrap: false});
+        if (post.featured_media) {
+          axios.get(this.mediaUrl + post.featured_media, {params: {_fields: "source_url"}})
+          .then(response => {
+            tmpPost.featuredMediaUrl = response.data.source_url;
+            console.log("Found featured media: ", tmpPost.featuredMediaUrl);
+          })
+        }
+        //console.log("Stripped excerpt: ", tmpPost.excerpt);
+        this.postList.push(tmpPost);
+      }
+    })
+    .catch(error => {
+      console.log(error);
+    })
+  }
+
+  emptyPost(): Post {
+    return {
+      title: '',
+      dateObject: new Date(),
+      dateString: '',
+      url: '',
+      featuredMediaUrl: '',
+      excerpt: '',
+      color: '',
+      calendarName: ''
+    }
+  }
+}
+
 export class Calendar {
   calendarIds: string[] = [];
   calendarNames: string[] = [];
@@ -27,6 +102,7 @@ export class Calendar {
   primaryColor: string = '';
   secondaryColor: string = '';
   eventLists: Event[][] = [];
+  blog: Blog | undefined;
 
   constructor(calendarName: string, checked: boolean) {
     var cal = undefined;
@@ -34,10 +110,14 @@ export class Calendar {
       for (let j = 0; j < environment.calendars[i].names.length; j++) {
         if (environment.calendars[i].names[j] === calendarName) {
           cal = environment.calendars[i];
+          if (environment.calendars[i].schoolCode) {
+            this.blog = new Blog(environment.calendars[i].schoolCode!, environment.calendars[i].secondaryColor, environment.calendars[i].names[0]);
+            this.blog.populateBlogPosts();
+          }
         }
       }
-
     }
+
     if (cal) {
       this.calendarIds = cal.calendarIds;
       this.calendarNames = cal.names;
@@ -144,6 +224,8 @@ export class CalendarService {
   constructor() { }
 
   private calendars: Calendar[] = [];
+  private selectedCalendars: string[] = [];
+  public selectedCalendarsChanged = new EventEmitter<string[]>();
 
   public getCalendarList(): Promise<Calendar[]> {
     return new Promise<Calendar[]>((resolve) => {
@@ -157,6 +239,10 @@ export class CalendarService {
       //console.log("tmp: ", tmp);
       resolve(tmp);
     });
+  }
+
+  public getSelectedCalendars(): string[] {
+    return this.selectedCalendars;
   }
 
   public noCalendarsChecked(): boolean {
@@ -178,21 +264,35 @@ export class CalendarService {
 
   addCalendar(cal: Calendar) {
     this.calendars.push(cal);
+    if (cal.checked) {
+      console.log("Adding ", cal.calendarNames[0]);
+      this.selectedCalendars.push(cal.calendarNames[0]);
+      this.selectedCalendarsChanged.emit(this.selectedCalendars);
+    }
   }
 
   changeCheckedStatus(name: string, checked: boolean) {
     for (let i = 0; i < this.calendars.length; i++) {
       for (let j = 0; j < environment.calendars[i].names.length; j++) {
         if (this.calendars[i].calendarNames[j] === name) {
+          if (this.selectedCalendars.includes(this.calendars[i].calendarNames[0])) {
+            this.selectedCalendars.splice(this.selectedCalendars.indexOf(this.calendars[i].calendarNames[0]), 1);
+          } else {
+            this.selectedCalendars.push(this.calendars[i].calendarNames[0]);
+          }
           this.calendars[i].checked = checked;
+          console.log("Done changing checked status");
+          console.log("Checked calendars: ", this.selectedCalendars);
+          this.selectedCalendarsChanged.emit();
           return;
         }
       }
     }
   }
 
-  getEventById(calId: any, eventId: any) {
+  getEventById(calId: string, eventId: any) {
     return new Promise<Event>((resolve, reject) => {
+      console.log(this.calendars);
       for (let i = 0; i < this.calendars.length; i++) {
         for (let j = 0; j < environment.calendars[i].calendarIds.length; j++) {
           if (this.calendars[i].calendarIds[j] === calId) {
@@ -208,7 +308,23 @@ export class CalendarService {
     });
   }
 
+  getBlogPosts(): Promise<Post[]> {
+    return new Promise((resolve, reject) => {
+      var tmp: Post[] = [];
+      for (let cal of this.calendars) {
+        if (cal.checked && cal.blog?.postList) {
+          tmp.push(...cal.blog.postList);
+        }
+      }
+      resolve(tmp);
+    });
+  }
+
   static formatDate(date: Date): string {
     return weekdays[date.getDay()] + ' ' + date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
   }
+}
+
+export class PostService {
+  constructor() {}
 }
