@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute } from '@angular/router';
-import { CalendarService, Event } from '../services/data.service';
+import { CalendarService } from '../app.module';
+import { Event } from '../services/data.service';
 import { Calendar as NativeCalendar } from '@awesome-cordova-plugins/calendar/ngx';
 import { ToastController } from '@ionic/angular';
 import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
