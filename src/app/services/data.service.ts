@@ -58,7 +58,7 @@ export class Blog {
       params: { _fields: "title,content,date,featured_media,link", after: twoMonthsAgo.toISOString()}
     }
 
-    CapacitorHttp.get(options)
+    return CapacitorHttp.get(options)
       .then(response => {
         //console.log(this.postUrl);
         //console.log("RESPONSE: ", response);
@@ -167,7 +167,7 @@ export class Calendar {
       return CapacitorHttp.get(options)
 
         .then(response => {
-          console.log(response);
+          //console.log(response);
           const data = JSON.parse(JSON.stringify(response.data));
           const events = data.items;
           var id = 0;
