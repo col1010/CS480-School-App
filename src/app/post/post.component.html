@@ -3,7 +3,7 @@
     <ion-card-header>
         <ion-card-title *ngIf="post.title">{{ post.title }}</ion-card-title>
         <ion-card-title *ngIf="!post.title">No Post Title</ion-card-title>
-        <ion-card-subtitle>{{ post.calendarName }}</ion-card-subtitle>
+        <ion-card-subtitle><ion-icon name="school"></ion-icon> {{ post.calendarName }}</ion-card-subtitle>
         <ion-card-subtitle><ion-icon name="time"></ion-icon> {{ post.dateString }}</ion-card-subtitle>
     </ion-card-header>
 
