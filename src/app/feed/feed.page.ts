@@ -21,18 +21,30 @@ export class FeedPage implements OnInit {
 
     this.subscription = this.calService.selectedCalendarsChanged.subscribe(() => {
       console.log("Changed (feed component)!");
-      this.calService.getBlogPosts()
-        .then(result => {
-          this.postList = result;
-          console.log("POST LIST: ", this.postList);
-        });
+      this.refreshPosts();
     });
+    this.refreshPosts();
+  }
 
+  refreshPosts() {
     this.calService.getBlogPosts()
       .then(result => {
+        this.sortPosts(result)
+          .then(sortedPosts => {
+            this.postList = sortedPosts;
+          })
         this.postList = result;
-        console.log("POST LIST: ", this.postList);
+
       });
+  }
+
+  sortPosts(posts: Post[]): Promise<Post[]> {
+    return new Promise<Post[]>((resolve) => {
+      const sortedEventList = posts.slice().sort((a: Post, b: Post) => {
+        return b.dateObject.getTime() - a.dateObject.getTime();
+      });
+      resolve(sortedEventList);
+    });
   }
 
 }
