@@ -5,9 +5,22 @@ ion-card {
     --ion-card-background: #e9e9e9;
 }
 
+ion-card-header {
+    padding-top: 5px;
+}
+
+ion-card-content {
+    display: -webkit-box;
+    -webkit-line-clamp: 5;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    padding-bottom: 0;
+}
+
 img {
     object-fit: cover;
-    max-height: 30vh;
+    max-height: 20vh;
     width: 100%;
 }
 

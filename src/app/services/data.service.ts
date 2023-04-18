@@ -12,7 +12,7 @@ export interface Post {
   dateString: string
   url: string;
   featuredMediaUrl: string | undefined;
-  excerpt: string;
+  content: string;
   color: string;
   calendarName: string;
 }
@@ -50,9 +50,11 @@ export class Blog {
   }
 
   async populateBlogPosts() {
+    const twoMonthsAgo = new Date();
+    twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2); // only fetch posts from 2 months ago or sooner
     const options = {
       url: this.postUrl,
-      params: { _fields: "title,excerpt,date,featured_media" }
+      params: { _fields: "title,content,date,featured_media,link", after: twoMonthsAgo.toISOString()}
     }
 
     CapacitorHttp.get(options)
@@ -68,7 +70,7 @@ export class Blog {
           tmpPost.url = post.link;
           tmpPost.color = this.color;
           tmpPost.calendarName = this.calendarName;
-          tmpPost.excerpt = convert(post.excerpt.rendered.toString(), { wordwrap: false });
+          tmpPost.content = convert(post.content.rendered.toString(), { wordwrap: false });
           if (post.featured_media) {
             const media_options = {
               url: this.mediaUrl + post.featured_media,
@@ -96,7 +98,7 @@ export class Blog {
       dateString: '',
       url: '',
       featuredMediaUrl: '',
-      excerpt: '',
+      content: '',
       color: '',
       calendarName: ''
     }
@@ -147,19 +149,20 @@ export class Calendar {
     now.setMonth(now.getMonth() - 1);
     var oneYear = new Date();
     oneYear.setFullYear(now.getFullYear() + 1);
-    var options = {
-      url: '',
-      params: {
-        key: environment.calendarApiKey,
-        timeMin: now.toISOString(),
-        timeMax: oneYear.toISOString(),
-        singleEvents: "true",
-        orderBy: "startTime"
-      }
-    }
+
     console.log("Calendar Ids: ", this.calendarIds);
     const promises = this.calendarIds.map((calendarId, index) => {
-      options.url = `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`;
+
+      var options = {
+        url: `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`,
+        params: {
+          key: environment.calendarApiKey,
+          timeMin: now.toISOString(),
+          timeMax: oneYear.toISOString(),
+          singleEvents: "true",
+          orderBy: "startTime"
+        }
+      }
 
       return CapacitorHttp.get(options)
 
