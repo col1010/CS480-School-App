@@ -18,14 +18,21 @@ export class FeedPage implements OnInit {
 
   async ngOnInit() {
     await this.platform.ready();
+
     this.subscription = this.calService.selectedCalendarsChanged.subscribe(() => {
       console.log("Changed (feed component)!");
       this.calService.getBlogPosts()
+        .then(result => {
+          this.postList = result;
+          console.log("POST LIST: ", this.postList);
+        });
+    });
+
+    this.calService.getBlogPosts()
       .then(result => {
         this.postList = result;
         console.log("POST LIST: ", this.postList);
       });
-    });
   }
 
 }

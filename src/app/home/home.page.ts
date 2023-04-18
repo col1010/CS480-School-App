@@ -48,7 +48,6 @@ export class HomePage implements OnInit, OnDestroy {
       this.moreEventsButtonDisabled = false;
       this.refreshEvents();
     });
-    await this.initializeCalendars();
     this.refreshEvents();
   }
 
@@ -56,21 +55,7 @@ export class HomePage implements OnInit, OnDestroy {
       this.subscription.unsubscribe();
   }
 
-  initializeCalendars(): Promise<void> {
-    return new Promise<void>(async (resolve) => {
-
-      for (let i = 0; i < this.envCalList.length; i++) {
-        if (localStorage.getItem(this.envCalList[i].names[0]) === "checked") {
-          // console.log(this.envCalList[i].names[0], " is checked!");
-          this.calService.addCalendar(new Calendar(this.envCalList[i].names[0], true));
-        } else {
-          this.calService.addCalendar(new Calendar(this.envCalList[i].names[0], false));
-        }
-      }
-      await this.calService.updateAllCalendars();
-      resolve();
-    })
-  }
+  
 
   async handleRefresh(event: any) {
     await this.calService.updateAllCalendars();
@@ -83,7 +68,7 @@ export class HomePage implements OnInit, OnDestroy {
     const combinedEventList = (await this.calService.getCalendarList()).reduce((acc, cal) => acc.concat(cal.eventLists), [] as Event[][]);
     this.eventList = await this.sortEvents(([] as Event[]).concat(...combinedEventList));
     this.dateList = Array.from(new Set(this.getEvents().map(event => CalendarService.formatDate(event.startDateObject))));
-    //console.log("combinedEventList: ", combinedEventList);
+     console.log("combinedEventList: ", combinedEventList);
     // console.log("eventList: ", this.eventList);
     // console.log("dateList:", this.dateList);
   }
