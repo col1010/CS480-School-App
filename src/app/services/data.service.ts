@@ -41,7 +41,9 @@ export class Blog {
   postList: Post[] = [];
 
   constructor(schoolCode: string, color: string, calendarName: string) {
+    console.log("school code: ", schoolCode)
     this.postUrl = `https://www.lewistonschools.net/${schoolCode}/wp-json/wp/v2/posts`;
+
     this.mediaUrl = `https://www.lewistonschools.net/${schoolCode}/wp-json/wp/v2/media/`; // insert media id at end
     this.color = color;
     this.calendarName = calendarName;
@@ -50,37 +52,41 @@ export class Blog {
   async populateBlogPosts() {
     const options = {
       url: this.postUrl,
-      params: {_fields: "title,excerpt,date,featured_media"}
+      params: { _fields: "title,excerpt,date,featured_media" }
     }
 
     CapacitorHttp.get(options)
-    .then(response => {
-      //console.log(this.postUrl);
-      console.log("RESPONSE: ", response);
-      const posts = response.data;
-      for (const post of posts) {
-        let tmpPost = this.emptyPost();
-        tmpPost.title = post.title.rendered;
-        tmpPost.dateObject = new Date(post.date);
-        tmpPost.dateString = CalendarService.formatDate(tmpPost.dateObject);
-        tmpPost.url = post.link;
-        tmpPost.color = this.color;
-        tmpPost.calendarName = this.calendarName;
-        tmpPost.excerpt = convert(post.excerpt.rendered.toString(), {wordwrap: false});
-        if (post.featured_media) {
-          axios.get(this.mediaUrl + post.featured_media, {params: {_fields: "source_url"}})
-          .then(response => {
-            tmpPost.featuredMediaUrl = response.data.source_url;
-            console.log("Found featured media: ", tmpPost.featuredMediaUrl);
-          })
+      .then(response => {
+        //console.log(this.postUrl);
+        //console.log("RESPONSE: ", response);
+        const posts = response.data;
+        for (const post of posts) {
+          let tmpPost = this.emptyPost();
+          tmpPost.title = post.title.rendered;
+          tmpPost.dateObject = new Date(post.date);
+          tmpPost.dateString = CalendarService.formatDate(tmpPost.dateObject);
+          tmpPost.url = post.link;
+          tmpPost.color = this.color;
+          tmpPost.calendarName = this.calendarName;
+          tmpPost.excerpt = convert(post.excerpt.rendered.toString(), { wordwrap: false });
+          if (post.featured_media) {
+            const media_options = {
+              url: this.mediaUrl + post.featured_media,
+              params: { _fields: "source_url" }
+            }
+            CapacitorHttp.get(media_options)
+              .then(response => {
+                tmpPost.featuredMediaUrl = response.data.source_url;
+                console.log("Found featured media: ", tmpPost.featuredMediaUrl);
+              })
+          }
+          //console.log("Stripped excerpt: ", tmpPost.excerpt);
+          this.postList.push(tmpPost);
         }
-        //console.log("Stripped excerpt: ", tmpPost.excerpt);
-        this.postList.push(tmpPost);
-      }
-    })
-    .catch(error => {
-      console.log(error);
-    })
+      })
+      .catch(error => {
+        console.log(error);
+      })
   }
 
   emptyPost(): Post {
@@ -112,7 +118,7 @@ export class Calendar {
       for (let j = 0; j < environment.calendars[i].names.length; j++) {
         if (environment.calendars[i].names[j] === calendarName) {
           cal = environment.calendars[i];
-          if (environment.calendars[i].schoolCode) {
+          if (environment.calendars[i].schoolCode != undefined) {
             this.blog = new Blog(environment.calendars[i].schoolCode!, environment.calendars[i].secondaryColor, environment.calendars[i].names[0]);
             this.blog.populateBlogPosts();
           }
@@ -141,20 +147,24 @@ export class Calendar {
     now.setMonth(now.getMonth() - 1);
     var oneYear = new Date();
     oneYear.setFullYear(now.getFullYear() + 1);
-    const params = {
-      key: environment.calendarApiKey,
-      timeMin: now.toISOString(),
-      timeMax: oneYear.toISOString(),
-      singleEvents: true,
-      orderBy: "startTime"
+    var options = {
+      url: '',
+      params: {
+        key: environment.calendarApiKey,
+        timeMin: now.toISOString(),
+        timeMax: oneYear.toISOString(),
+        singleEvents: "true",
+        orderBy: "startTime"
+      }
     }
+    console.log("Calendar Ids: ", this.calendarIds);
     const promises = this.calendarIds.map((calendarId, index) => {
-      var url = `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`;
+      options.url = `https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`;
 
-      return axios.get(url, { params: params })
+      return CapacitorHttp.get(options)
 
         .then(response => {
-          //console.log(response.data);
+          console.log(response);
           const data = JSON.parse(JSON.stringify(response.data));
           const events = data.items;
           var id = 0;
@@ -260,6 +270,7 @@ export class CalendarService {
     return new Promise<void>(async (resolve) => {
       const promises = this.calendars.map(cal => cal.populateEventList());
       await Promise.all(promises);
+      this.selectedCalendarsChanged.emit(this.selectedCalendars);
       resolve();
     });
   }
@@ -328,5 +339,5 @@ export class CalendarService {
 }
 
 export class PostService {
-  constructor() {}
+  constructor() { }
 }
