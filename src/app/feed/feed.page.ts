@@ -47,4 +47,10 @@ export class FeedPage implements OnInit {
     });
   }
 
+  async handleRefresh(event: any) {
+    await this.calService.updateAllCalendars();
+    this.refreshPosts();
+    event.target.complete();
+  }
+
 }

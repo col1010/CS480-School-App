@@ -50,6 +50,7 @@ export class Blog {
   }
 
   async populateBlogPosts() {
+    this.postList = [];
     const twoMonthsAgo = new Date();
     twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2); // only fetch posts from 2 months ago or sooner
     const options = {
@@ -122,7 +123,6 @@ export class Calendar {
           cal = environment.calendars[i];
           if (environment.calendars[i].schoolCode != undefined) {
             this.blog = new Blog(environment.calendars[i].schoolCode!, environment.calendars[i].secondaryColor, environment.calendars[i].names[0]);
-            this.blog.populateBlogPosts();
           }
         }
       }
@@ -271,8 +271,10 @@ export class CalendarService {
 
   public updateAllCalendars(): Promise<void> {
     return new Promise<void>(async (resolve) => {
-      const promises = this.calendars.map(cal => cal.populateEventList());
-      await Promise.all(promises);
+      const eventPromises = this.calendars.map(cal => cal.populateEventList());
+      const blogPromises = this.calendars.map(cal => cal.blog?.populateBlogPosts());
+      await Promise.all(eventPromises);
+      await Promise.all(blogPromises);
       this.selectedCalendarsChanged.emit(this.selectedCalendars);
       resolve();
     });
