@@ -1,4 +1,4 @@
-<ion-card *ngIf="post" [ngStyle]="{'border-left-color': (post.color == '') ? '' : post.color}">
+<ion-card *ngIf="post" mode="ios" [ngStyle]="{'border-left-color': (post.color == '') ? '' : post.color}">
     <img *ngIf="post.featuredMediaUrl" [src]="post.featuredMediaUrl">
     <ion-card-header>
         <ion-card-title>{{ post.title }}</ion-card-title>
