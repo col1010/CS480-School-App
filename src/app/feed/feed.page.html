@@ -1,21 +1,21 @@
-<div id="main-content">
-  <ion-header>
-    <ion-toolbar>
-      <ion-buttons slot="start">
-        <ion-menu-button></ion-menu-button>
-      </ion-buttons>
-      <ion-title>Lewiston Schools</ion-title>
-    </ion-toolbar>
-  </ion-header>
-</div>
+<ion-header>
+  <ion-toolbar>
+    <ion-buttons slot="start">
+      <ion-menu-button></ion-menu-button>
+    </ion-buttons>
+    <ion-title>Lewiston Schools</ion-title>
+  </ion-toolbar>
+</ion-header>
 
 <ion-content>
   <ion-refresher slot="fixed" (ionRefresh)="handleRefresh($event)">
     <ion-refresher-content></ion-refresher-content>
   </ion-refresher>
+
   <ion-list lines="none">
     <div *ngFor="let post of postList">
       <app-post [post]="post"></app-post>
     </div>
+    <ion-item *ngIf="!postList.length">No news to display!</ion-item>
   </ion-list>
 </ion-content>
