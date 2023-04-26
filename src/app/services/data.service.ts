@@ -146,7 +146,7 @@ export class Calendar {
       this.eventLists.push([] as Event[]);
     }
     const now = new Date();
-    now.setMonth(now.getMonth() - 1);
+    //now.setMonth(now.getMonth() - 1);
     var oneYear = new Date();
     oneYear.setFullYear(now.getFullYear() + 1);
 
