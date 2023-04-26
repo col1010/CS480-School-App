@@ -1,4 +1,4 @@
-<ion-card *ngIf="post" mode="ios" [ngStyle]="{'border-left-color': (post.color == '') ? '' : post.color}">
+<ion-card *ngIf="post" mode="ios" (click)="openUrl(post.url)" [ngStyle]="{'border-left-color': (post.color == '') ? '' : post.color}">
     <img *ngIf="post.featuredMediaUrl" [src]="post.featuredMediaUrl">
     <ion-card-header>
         <ion-card-title *ngIf="post.title">{{ post.title }}</ion-card-title>
@@ -10,5 +10,7 @@
     <ion-card-content *ngIf="post.content">
         {{ post.content }}
     </ion-card-content>
-    <ion-button (click)="openUrl(post.url)" fill="clear">View Post</ion-button>
+    <div class="center-button">
+        <ion-button (click)="openUrl(post.url)" fill="clear">View Post</ion-button>
+    </div>
 </ion-card>
