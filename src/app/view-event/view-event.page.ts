@@ -4,8 +4,8 @@ import { CalendarService } from '../app.module';
 import { Event } from '../services/data.service';
 import { Calendar as NativeCalendar } from '@awesome-cordova-plugins/calendar/ngx';
 import { ToastController } from '@ionic/angular';
-import { DomSanitizer, SafeUrl } from '@angular/platform-browser';
 import { Platform } from '@ionic/angular';
+import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx'
 
 
 interface SystemCalendar {
@@ -27,15 +27,15 @@ export class ViewEventPage implements OnInit {
   isIOS: boolean = true;
   deviceReady: boolean = false;
 
-  //baseGoogleMapsURL = "https://google.com/maps/search/?api=1&query=";
+  baseGoogleMapsURL = "https://google.com/maps/search/?api=1&query=";
 
   constructor(
     private calService: CalendarService,
     private activatedRoute: ActivatedRoute,
     private calendar: NativeCalendar,
     private toastController: ToastController,
-    private sanitizer: DomSanitizer,
-    private platform: Platform
+    private platform: Platform,
+    private iab: InAppBrowser
   ) {
     platform.ready().then(() => {
       this.deviceReady = true;
@@ -54,16 +54,12 @@ export class ViewEventPage implements OnInit {
     const mode = win && win.Ionic && win.Ionic.mode;
     return mode === 'ios' ? 'Calendar' : '';
   }
-  /*
-    encodeSearchQuery(query: string) {
-      return encodeURIComponent(query);
-    }
-  
-    sanitizeUrl(url: string): SafeUrl {
-      console.log(this.sanitizer.bypassSecurityTrustUrl(url));
-      return this.sanitizer.bypassSecurityTrustUrl(url);
-    }
-  */
+
+  async openGoogleMaps(location: string) {
+    const browser = this.iab.create(this.baseGoogleMapsURL + encodeURIComponent(location));
+
+  }
+
   addEventToNativeCalendarInteractively(event: Event) {
 
     this.calendar.createEventInteractivelyWithOptions(event.summary, event.location, event.description, event.startDateObject, event.endDateObject, {}).then(

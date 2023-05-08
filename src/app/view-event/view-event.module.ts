@@ -7,6 +7,7 @@ import { IonicModule } from '@ionic/angular';
 
 import { ViewEventPageRoutingModule } from './view-event-routing.module';
 import { Calendar } from '@awesome-cordova-plugins/calendar/ngx'
+import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx';
 
 @NgModule({
   imports: [
@@ -16,6 +17,6 @@ import { Calendar } from '@awesome-cordova-plugins/calendar/ngx'
     ViewEventPageRoutingModule
   ],
   declarations: [ViewEventPage],
-  providers: [Calendar]
+  providers: [Calendar, InAppBrowser]
 })
 export class ViewEventPageModule {}
