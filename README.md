@@ -16,7 +16,7 @@ Screenshots:
   <img src="https://isoptera.lcsc.edu/~cmkauffman/media/LewistonSchools/1.png" width="25%">
   <img src="https://isoptera.lcsc.edu/~cmkauffman/media/LewistonSchools/2.png" width="25%">
   <img src="https://isoptera.lcsc.edu/~cmkauffman/media/LewistonSchools/3.png" width="25%">
-  <img src="https://isoptera.lcsc.edu/~cmkauffman/media/LewistonSchools/4.png" width="25%">
+  <img src="https://isoptera.lcsc.edu/~cmkauffman/media/LewistonSchools/8.png" width="25%">
   <img src="https://isoptera.lcsc.edu/~cmkauffman/media/LewistonSchools/5.png" width="25%">
   <img src="https://isoptera.lcsc.edu/~cmkauffman/media/LewistonSchools/6.png" width="25%">
   <img src="https://isoptera.lcsc.edu/~cmkauffman/media/LewistonSchools/7.png" width="25%">
