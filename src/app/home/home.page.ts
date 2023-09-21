@@ -52,33 +52,26 @@ export class HomePage implements OnInit, OnDestroy {
   }
 
   ngOnDestroy(): void {
-      this.subscription.unsubscribe();
+    this.subscription.unsubscribe();
   }
 
-  
-
-  async handleRefresh(event: any) {
-    await this.calService.updateAllCalendars();
-    this.refreshEvents();
-    event.target.complete();
+  handleRefresh(event: any) {
+    this.calService.updateAllCalendars()
+      .then(() => event.target.complete());
   }
 
-  async refreshEvents() {
-    console.log("Refreshing events...");
-    const combinedEventList = (await this.calService.getCalendarList()).reduce((acc, cal) => acc.concat(cal.eventLists), [] as Event[][]);
-    this.eventList = await this.sortEvents(([] as Event[]).concat(...combinedEventList));
+  refreshEvents() {
+    const calendars = this.calService.getCalendarList();
+    const eventArrs = calendars.reduce((acc, cal) => acc.concat(cal.eventLists), [] as Event[][]);
+    const combinedEventList = ([] as Event[]).concat(...eventArrs);
+    this.eventList = this.sortEvents(combinedEventList);
+    /* Change detection triggered  */
     this.dateList = Array.from(new Set(this.getEvents().map(event => CalendarService.formatDate(event.startDateObject))));
-     console.log("combinedEventList: ", combinedEventList);
-    // console.log("eventList: ", this.eventList);
-    // console.log("dateList:", this.dateList);
   }
 
-  async sortEvents(events: Event[]) {
-    return new Promise<Event[]>((resolve) => {
-      const sortedEventList = events.slice().sort((a: Event, b: Event) => {
-        return a.startDateObject.getTime() - b.startDateObject.getTime();
-      });
-      resolve(sortedEventList);
+  sortEvents(events: Event[]) {
+    return events.slice().sort((a: Event, b: Event) => {
+      return a.startDateObject.getTime() - b.startDateObject.getTime();
     });
   }
 

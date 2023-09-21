@@ -27,30 +27,18 @@ export class FeedPage implements OnInit {
   }
 
   refreshPosts() {
-    this.calService.getBlogPosts()
-      .then(result => {
-        this.sortPosts(result)
-          .then(sortedPosts => {
-            this.postList = sortedPosts;
-          })
-        this.postList = result;
-
-      });
+    this.postList = this.sortPosts(this.calService.getBlogPosts());
   }
 
-  sortPosts(posts: Post[]): Promise<Post[]> {
-    return new Promise<Post[]>((resolve) => {
-      const sortedEventList = posts.slice().sort((a: Post, b: Post) => {
-        return b.dateObject.getTime() - a.dateObject.getTime();
-      });
-      resolve(sortedEventList);
+  sortPosts(posts: Post[]): Post[] {
+    return posts.slice().sort((a: Post, b: Post) => {
+      return b.dateObject.getTime() - a.dateObject.getTime();
     });
   }
 
-  async handleRefresh(event: any) {
-    await this.calService.updateAllCalendars();
-    this.refreshPosts();
-    event.target.complete();
+  handleRefresh(event: any) {
+    this.calService.updateAllCalendars()
+      .then(() => event.target.complete());
   }
 
 }

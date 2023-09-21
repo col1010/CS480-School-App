@@ -34,8 +34,6 @@ export class MenuComponent implements OnInit, OnDestroy {
       this.subscription.unsubscribe();
   }
 
-
-
   onCheckboxChange(event: any, cal: any) {
     const isChecked = event.detail.checked;
     if (isChecked) {

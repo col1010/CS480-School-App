@@ -34,8 +34,8 @@ export interface Event {
 }
 
 export class Blog {
-  private postUrl: string = '';
-  private mediaUrl: string = '';
+  private postUrl: string;
+  private mediaUrl: string;
   private calendarName: string;
   private color: string;
   postList: Post[] = [];
@@ -43,19 +43,18 @@ export class Blog {
   constructor(schoolCode: string, color: string, calendarName: string) {
     console.log("school code: ", schoolCode)
     this.postUrl = `https://www.lewistonschools.net/${schoolCode}/wp-json/wp/v2/posts`;
-
     this.mediaUrl = `https://www.lewistonschools.net/${schoolCode}/wp-json/wp/v2/media/`; // insert media id at end
     this.color = color;
     this.calendarName = calendarName;
   }
 
-  async populateBlogPosts() {
+  populateBlogPosts() {
     this.postList = [];
     const twoMonthsAgo = new Date();
     twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2); // only fetch posts from 2 months ago or sooner
     const options = {
       url: this.postUrl,
-      params: { _fields: "title,content,date,featured_media,link", after: twoMonthsAgo.toISOString()}
+      params: { _fields: "title,content,date,featured_media,link", after: twoMonthsAgo.toISOString() }
     }
 
     return CapacitorHttp.get(options)
@@ -65,7 +64,7 @@ export class Blog {
         const posts = response.data;
         for (const post of posts) {
           let tmpPost = this.emptyPost();
-          tmpPost.title = post.title.rendered;
+          tmpPost.title = convert(post.title.rendered.toString(), { wordwrap: false });
           tmpPost.dateObject = new Date(post.date);
           tmpPost.dateString = CalendarService.formatDate(tmpPost.dateObject);
           tmpPost.url = post.link;
@@ -121,7 +120,7 @@ export class Calendar {
       for (let j = 0; j < environment.calendars[i].names.length; j++) {
         if (environment.calendars[i].names[j] === calendarName) {
           cal = environment.calendars[i];
-          if (environment.calendars[i].schoolCode != undefined) {
+          if (environment.calendars[i].schoolCode !== undefined) {
             this.blog = new Blog(environment.calendars[i].schoolCode!, environment.calendars[i].secondaryColor, environment.calendars[i].names[0]);
           }
         }
@@ -165,8 +164,7 @@ export class Calendar {
       }
 
       return CapacitorHttp.get(options)
-
-        .then(response => {
+        .then((response) => {
           //console.log(response);
           const data = JSON.parse(JSON.stringify(response.data));
           const events = data.items;
@@ -242,18 +240,8 @@ export class CalendarService {
   private selectedCalendars: string[] = [];
   public selectedCalendarsChanged = new EventEmitter<string[]>();
 
-  public getCalendarList(): Promise<Calendar[]> {
-    return new Promise<Calendar[]>((resolve) => {
-      var tmp: Calendar[] = [];
-      for (let i = 0; i < this.calendars.length; i++) {
-        if (this.calendars[i].checked) {
-          tmp.push(this.calendars[i]);
-          //console.log("Pushing ", this.calendars[i].calendarName);
-        }
-      }
-      //console.log("tmp: ", tmp);
-      resolve(tmp);
-    });
+  public getCalendarList() {
+    return this.calendars.filter((cal) => cal.checked);
   }
 
   public getSelectedCalendars(): string[] {
@@ -308,34 +296,24 @@ export class CalendarService {
     }
   }
 
-  getEventById(calId: string, eventId: any) {
-    return new Promise<Event>((resolve, reject) => {
-      console.log(this.calendars);
-      for (let i = 0; i < this.calendars.length; i++) {
-        for (let j = 0; j < environment.calendars[i].calendarIds.length; j++) {
-          if (this.calendars[i].calendarIds[j] === calId) {
-            if (this.calendars[i].eventLists[j][eventId] === undefined) {
-              reject("Invalid Event");
-            } else {
-              resolve(this.calendars[i].eventLists[j][eventId]);
-            }
+  getEventById(calId: string, eventId: number): Event | undefined {
+    for (let i = 0; i < this.calendars.length; i++) {
+      for (let j = 0; j < environment.calendars[i].calendarIds.length; j++) {
+        if (this.calendars[i].calendarIds[j] === calId) {
+          if (this.calendars[i].eventLists[j][eventId] === undefined) {
+            return undefined;
+          } else {
+            return this.calendars[i].eventLists[j][eventId];
           }
         }
       }
-      reject("Invalid Calendar");
-    });
+    }
+    return undefined;
   }
 
-  getBlogPosts(): Promise<Post[]> {
-    return new Promise((resolve, reject) => {
-      var tmp: Post[] = [];
-      for (let cal of this.calendars) {
-        if (cal.checked && cal.blog?.postList) {
-          tmp.push(...cal.blog.postList);
-        }
-      }
-      resolve(tmp);
-    });
+  getBlogPosts(): Post[] {
+    const calendars = this.calendars.filter((cal) => cal.checked && cal.blog?.postList);
+    return calendars.reduce((acc, cal) => acc.concat(cal.blog!.postList), [] as Post[]);
   }
 
   static formatDate(date: Date): string {
