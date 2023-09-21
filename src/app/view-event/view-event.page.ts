@@ -42,7 +42,7 @@ export class ViewEventPage implements OnInit {
     this.isIOS = this.platform.is("ios");
     const eventId = this.activatedRoute.snapshot.paramMap.get('eventId') as string;
     const calId = this.activatedRoute.snapshot.paramMap.get('calendarId') as string;
-    this.event = this.calService.getEventById(calId, parseInt(eventId, 10));
+    this.event = this.calService.getEventById(calId, parseInt(eventId));
   }
 
   getBackButtonText() {
