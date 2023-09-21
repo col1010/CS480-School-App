@@ -274,12 +274,7 @@ export class CalendarService {
 
   getEventById(calId: string, eventId: number): Event | undefined {
     const cal = this.calendars.find((cal) => cal.calendarIds.includes(calId));
-    if (cal) {
-      const idx = cal.calendarIds.indexOf(calId);
-      return cal.eventLists[idx][eventId];
-    } else {
-      return undefined;
-    }
+    return cal ? cal.eventLists[cal.calendarIds.indexOf(calId)][eventId] : undefined;
   }
 
   getBlogPosts(): Post[] {
