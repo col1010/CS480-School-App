@@ -18,11 +18,7 @@ export class FeedPage implements OnInit {
 
   async ngOnInit() {
     await this.platform.ready();
-
-    this.subscription = this.calService.selectedCalendarsChanged.subscribe(() => {
-      console.log("Changed (feed component)!");
-      this.refreshPosts();
-    });
+    this.subscription = this.calService.selectedCalendarsChanged.subscribe(() => this.refreshPosts());
     this.refreshPosts();
   }
 
@@ -40,5 +36,4 @@ export class FeedPage implements OnInit {
     this.calService.updateAllCalendars()
       .then(() => event.target.complete());
   }
-
 }

@@ -41,7 +41,6 @@ export class Blog {
   postList: Post[] = [];
 
   constructor(schoolCode: string, color: string, calendarName: string) {
-    console.log("school code: ", schoolCode)
     this.postUrl = `https://www.lewistonschools.net/${schoolCode}/wp-json/wp/v2/posts`;
     this.mediaUrl = `https://www.lewistonschools.net/${schoolCode}/wp-json/wp/v2/media/`; // insert media id at end
     this.color = color;
@@ -111,17 +110,8 @@ export class Calendar {
   blog: Blog | undefined;
 
   constructor(calendarName: string, checked: boolean) {
-    var cal = undefined;
-    for (let i = 0; i < environment.calendars.length; i++) {
-      for (let j = 0; j < environment.calendars[i].names.length; j++) {
-        if (environment.calendars[i].names[j] === calendarName) {
-          cal = environment.calendars[i];
-          if (environment.calendars[i].schoolCode) {
-            this.blog = new Blog(environment.calendars[i].schoolCode!, environment.calendars[i].secondaryColor, environment.calendars[i].names[0]);
-          }
-        }
-      }
-    }
+
+    const cal = environment.calendars.find((cal) => cal.names.includes(calendarName));
 
     if (cal) {
       this.calendarIds = cal.calendarIds;
@@ -129,7 +119,11 @@ export class Calendar {
       this.primaryColor = cal.primaryColor;
       this.secondaryColor = cal.secondaryColor;
       this.checked = checked;
-      this.eventLists = [];
+
+      if (cal.schoolCode) {
+        this.blog = new Blog(cal.schoolCode, cal.secondaryColor, cal.names[0]);
+      }
+
     } else {
       throw new Error("Invalid Calendar Name");
     }
@@ -161,7 +155,6 @@ export class Calendar {
 
       return CapacitorHttp.get(options)
         .then((response) => {
-          //console.log(response);
           const data = JSON.parse(JSON.stringify(response.data));
           const events = data.items;
           var id = 0;
@@ -186,7 +179,6 @@ export class Calendar {
               tmpEvent.endTimeString = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit', timeZoneName: 'short' });
             }
             tmpEvent.startDateString = CalendarService.formatDate(tmpEvent.startDateObject);
-            //console.log(tmpEvent.startDateString);
             tmpEvent.location = event.location;
             tmpEvent.description = event.description;
             tmpEvent.id = id++;
@@ -260,7 +252,6 @@ export class CalendarService {
   addCalendar(cal: Calendar) {
     this.calendars.push(cal);
     if (cal.checked) {
-      console.log("Adding ", cal.calendarNames[0]);
       this.selectedCalendars.push(cal.calendarNames[0]);
       this.selectedCalendarsChanged.emit();
     }
@@ -282,18 +273,13 @@ export class CalendarService {
   }
 
   getEventById(calId: string, eventId: number): Event | undefined {
-    for (let i = 0; i < this.calendars.length; i++) {
-      for (let j = 0; j < environment.calendars[i].calendarIds.length; j++) {
-        if (this.calendars[i].calendarIds[j] === calId) {
-          if (this.calendars[i].eventLists[j][eventId] === undefined) {
-            return undefined;
-          } else {
-            return this.calendars[i].eventLists[j][eventId];
-          }
-        }
-      }
+    const cal = this.calendars.find((cal) => cal.calendarIds.includes(calId));
+    if (cal) {
+      const idx = cal.calendarIds.indexOf(calId);
+      return cal.eventLists[idx][eventId];
+    } else {
+      return undefined;
     }
-    return undefined;
   }
 
   getBlogPosts(): Post[] {

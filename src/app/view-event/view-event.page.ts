@@ -26,8 +26,6 @@ export class ViewEventPage implements OnInit {
   isIOS: boolean = true;
   deviceReady: boolean = false;
 
-  baseGoogleMapsURL = "https://www.google.com/maps/search/?api=1&query=";
-
   constructor(
     private calService: CalendarService,
     private activatedRoute: ActivatedRoute,
@@ -48,28 +46,20 @@ export class ViewEventPage implements OnInit {
   }
 
   getBackButtonText() {
-    const win = window as any;
-    const mode = win && win.Ionic && win.Ionic.mode;
-    return mode === 'ios' ? 'Calendar' : '';
-  }
-
-  async openGoogleMaps(location: string) {
-    window.open(this.baseGoogleMapsURL + encodeURIComponent(location));
+    return this.isIOS ? 'Calendar' : '';
   }
 
   addEventToNativeCalendarInteractively(event: Event) {
-    this.calendar.createEventInteractivelyWithOptions(event.summary, event.location, event.description,
-      event.startDateObject, event.endDateObject, {})
-      .then(() => { })
-      .catch((err) => {
-        this.presentToastNotification("Error creating event! Does the app have permission to access your Calendar?", true);
-        console.error(err);
-      });
+    try {
+      this.calendar.createEventInteractivelyWithOptions(event.summary, event.location, event.description,
+        event.startDateObject, event.endDateObject, {});
+    } catch (err) {
+      this.presentToastNotification("Error creating event! Does the app have permission to access your Calendar?", true);
+    }
   }
 
   async presentToastNotification(message: string, error: boolean) {
-    var color;
-    error ? color = 'danger' : color = 'success';
+    const color = error ? 'danger' : 'success';
     const toast = await this.toastController.create({
       message: message,
       duration: 6000,
@@ -85,5 +75,9 @@ export class ViewEventPage implements OnInit {
 
   getGoogleCalendarUrl(calId: string): string {
     return `https://calendar.google.com/calendar/r?cid=${calId}`;
+  }
+
+  getGoogleMapsUrl(location: string): string {
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(location)}`;
   }
 }

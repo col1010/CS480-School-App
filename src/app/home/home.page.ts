@@ -84,7 +84,6 @@ export class HomePage implements OnInit, OnDestroy {
         this.endIndex = this.eventList.length;
         this.moreEventsButtonDisabled = true;
       }
-      //console.log("sliced array: ", this.eventList.slice(0, this.endIndex));
       this.moreEventsButtonShown = true;
       return this.eventList.slice(0, this.endIndex);
     }
