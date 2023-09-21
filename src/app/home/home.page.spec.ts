@@ -2,7 +2,7 @@ import { ComponentFixture, TestBed } from '@angular/core/testing';
 import { RouterModule } from '@angular/router';
 import { IonicModule } from '@ionic/angular';
 
-import { MessageComponentModule } from '../event/event.module';
+import { EventComponentModule } from '../event/event.module';
 
 import { HomePage } from './home.page';
 
@@ -13,7 +13,7 @@ describe('HomePage', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       declarations: [HomePage],
-      imports: [IonicModule.forRoot(), MessageComponentModule, RouterModule.forRoot([])]
+      imports: [IonicModule.forRoot(), EventComponentModule, RouterModule.forRoot([])]
     }).compileComponents();
 
     fixture = TestBed.createComponent(HomePage);
