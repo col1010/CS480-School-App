@@ -1,5 +1,4 @@
 import { Injectable, EventEmitter } from '@angular/core';
-import axios from 'axios';
 import { environment } from 'src/environments/environment';
 import { convert } from 'html-to-text';
 import { CapacitorHttp } from '@capacitor/core';
@@ -34,10 +33,10 @@ export interface Event {
 }
 
 export class Blog {
-  private postUrl: string;
-  private mediaUrl: string;
-  private calendarName: string;
-  private color: string;
+  postUrl: string;
+  mediaUrl: string;
+  calendarName: string;
+  color: string;
   postList: Post[] = [];
 
   constructor(schoolCode: string, color: string, calendarName: string) {
@@ -47,7 +46,7 @@ export class Blog {
     this.calendarName = calendarName;
   }
 
-  populateBlogPosts() {
+  populatePostList() {
     this.postList = [];
     const twoMonthsAgo = new Date();
     twoMonthsAgo.setMonth(twoMonthsAgo.getMonth() - 2); // only fetch posts from 2 months ago or sooner
@@ -129,7 +128,7 @@ export class Calendar {
     }
   }
 
-  async populateEventList() {
+  populateEventLists() {
     this.eventLists = [];
     for (let i = 0; i < this.calendarIds.length; i++) {
       this.eventLists.push([] as Event[]);
@@ -192,7 +191,7 @@ export class Calendar {
           console.log(error);
         });
     });
-    await Promise.all(promises);
+    return Promise.all(promises);
   }
 
   private emptyEvent(): Event {
@@ -240,8 +239,8 @@ export class CalendarService {
 
   public updateAllCalendars(): Promise<void> {
     return new Promise<void>(async (resolve) => {
-      const eventPromises = this.calendars.map(cal => cal.populateEventList());
-      const blogPromises = this.calendars.map(cal => cal.blog?.populateBlogPosts());
+      const eventPromises = this.calendars.map(cal => cal.populateEventLists());
+      const blogPromises = this.calendars.map(cal => cal.blog?.populatePostList());
       await Promise.all(eventPromises);
       await Promise.all(blogPromises);
       this.selectedCalendarsChanged.emit(this.selectedCalendars);
@@ -257,15 +256,15 @@ export class CalendarService {
     }
   }
 
-  changeCheckedStatus(name: string, checked: boolean) {
-    const cal = this.calendars.find((cal) => cal.calendarNames.includes(name));
+  changeCheckedStatus(calendarName: string, checked: boolean) {
+    const cal = this.calendars.find((cal) => cal.calendarNames.includes(calendarName));
     if (cal) {
-      if (this.selectedCalendars.includes(name)) {
-        this.selectedCalendars.splice(this.selectedCalendars.indexOf(name), 1);
-        localStorage.setItem(name, "unchecked");
+      if (this.selectedCalendars.includes(calendarName)) {
+        this.selectedCalendars.splice(this.selectedCalendars.indexOf(calendarName), 1);
+        localStorage.setItem(calendarName, "unchecked");
       } else {
-        this.selectedCalendars.push(name);
-        localStorage.setItem(name, "checked");
+        this.selectedCalendars.push(calendarName);
+        localStorage.setItem(calendarName, "checked");
       }
       cal.checked = checked;
       this.selectedCalendarsChanged.emit();
@@ -285,8 +284,4 @@ export class CalendarService {
   static formatDate(date: Date): string {
     return weekdays[date.getDay()] + ' ' + date.toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' });
   }
-}
-
-export class PostService {
-  constructor() { }
 }
