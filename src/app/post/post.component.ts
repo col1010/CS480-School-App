@@ -7,12 +7,10 @@ import { Browser } from '@capacitor/browser';
   templateUrl: './post.component.html',
   styleUrls: ['./post.component.scss'],
 })
-export class PostComponent implements OnInit {
+export class PostComponent {
   @Input() post?: Post;
   
   constructor() { }
-
-  ngOnInit() {}
 
   async openUrl(url: string) {
     await Browser.open({url: url});
