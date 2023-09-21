@@ -19,6 +19,7 @@ export interface Post {
 
 export interface Event {
   summary: string;
+  description: string;
   calendarName: string;
   calendarId: string;
   primaryColor: string;
@@ -26,11 +27,10 @@ export interface Event {
   startTimeString?: string;
   startDateString: string;
   startDateObject: Date;
-  endDateObject?: Date,
+  endDateObject: Date,
   endTimeString?: string;
   location: string;
   id: number;
-  description: string;
 }
 
 export class Blog {
@@ -59,8 +59,6 @@ export class Blog {
 
     return CapacitorHttp.get(options)
       .then(response => {
-        //console.log(this.postUrl);
-        //console.log("RESPONSE: ", response);
         const posts = response.data;
         for (const post of posts) {
           let tmpPost = this.emptyPost();
@@ -79,15 +77,13 @@ export class Blog {
             CapacitorHttp.get(media_options)
               .then(response => {
                 tmpPost.featuredMediaUrl = response.data.source_url;
-                console.log("Found featured media: ", tmpPost.featuredMediaUrl);
               })
           }
-          //console.log("Stripped excerpt: ", tmpPost.excerpt);
           this.postList.push(tmpPost);
         }
       })
       .catch(error => {
-        console.log(error);
+        console.error(error);
       })
   }
 
@@ -120,7 +116,7 @@ export class Calendar {
       for (let j = 0; j < environment.calendars[i].names.length; j++) {
         if (environment.calendars[i].names[j] === calendarName) {
           cal = environment.calendars[i];
-          if (environment.calendars[i].schoolCode !== undefined) {
+          if (environment.calendars[i].schoolCode) {
             this.blog = new Blog(environment.calendars[i].schoolCode!, environment.calendars[i].secondaryColor, environment.calendars[i].names[0]);
           }
         }
@@ -173,18 +169,16 @@ export class Calendar {
             var tmpEvent = this.emptyEvent();
             tmpEvent.summary = event.summary;
             tmpEvent.calendarName = data.summary;
-            if (event.start.dateTime === undefined) {
+            if (!event.start.dateTime) {
               const d = new Date(event.start.date);
               tmpEvent.startDateObject = d;
               d.setMinutes(d.getMinutes() + d.getTimezoneOffset());
-              tmpEvent.startTimeString = undefined;
             } else {
               const d = new Date(event.start.dateTime);
               tmpEvent.startDateObject = d;
               tmpEvent.startTimeString = d.toLocaleTimeString('en-US', { hour: 'numeric', minute: '2-digit' });
             }
-            if (event.end.dateTime === undefined) {
-              tmpEvent.endTimeString = undefined;
+            if (!event.end.dateTime) {
               tmpEvent.endDateObject = tmpEvent.startDateObject; // set the end date the same as the start date to correctly set up an all day event
             } else {
               const d = new Date(event.end.dateTime);
@@ -216,10 +210,10 @@ export class Calendar {
       calendarId: '',
       primaryColor: '',
       secondaryColor: '',
-      startTimeString: '',
+      startTimeString: undefined,
       startDateString: '',
       startDateObject: new Date(),
-      endTimeString: '',
+      endTimeString: undefined,
       endDateObject: new Date(),
       location: '',
       id: 0,
@@ -238,7 +232,7 @@ export class CalendarService {
 
   private calendars: Calendar[] = [];
   private selectedCalendars: string[] = [];
-  public selectedCalendarsChanged = new EventEmitter<string[]>();
+  public selectedCalendarsChanged = new EventEmitter();
 
   public getCalendarList() {
     return this.calendars.filter((cal) => cal.checked);
@@ -249,12 +243,7 @@ export class CalendarService {
   }
 
   public noCalendarsChecked(): boolean {
-    for (let i = 0; i < this.calendars.length; i++) {
-      if (this.calendars[i].checked) {
-        return false;
-      }
-    }
-    return true;
+    return this.calendars.every((cal) => !cal.checked );
   }
 
   public updateAllCalendars(): Promise<void> {
@@ -273,26 +262,22 @@ export class CalendarService {
     if (cal.checked) {
       console.log("Adding ", cal.calendarNames[0]);
       this.selectedCalendars.push(cal.calendarNames[0]);
-      this.selectedCalendarsChanged.emit(this.selectedCalendars);
+      this.selectedCalendarsChanged.emit();
     }
   }
 
   changeCheckedStatus(name: string, checked: boolean) {
-    for (let i = 0; i < this.calendars.length; i++) {
-      for (let j = 0; j < environment.calendars[i].names.length; j++) {
-        if (this.calendars[i].calendarNames[j] === name) {
-          if (this.selectedCalendars.includes(this.calendars[i].calendarNames[0])) {
-            this.selectedCalendars.splice(this.selectedCalendars.indexOf(this.calendars[i].calendarNames[0]), 1);
-          } else {
-            this.selectedCalendars.push(this.calendars[i].calendarNames[0]);
-          }
-          this.calendars[i].checked = checked;
-          console.log("Done changing checked status");
-          console.log("Checked calendars: ", this.selectedCalendars);
-          this.selectedCalendarsChanged.emit();
-          return;
-        }
+    const cal = this.calendars.find((cal) => cal.calendarNames.includes(name));
+    if (cal) {
+      if (this.selectedCalendars.includes(name)) {
+        this.selectedCalendars.splice(this.selectedCalendars.indexOf(name), 1);
+        localStorage.setItem(name, "unchecked");
+      } else {
+        this.selectedCalendars.push(name);
+        localStorage.setItem(name, "checked");
       }
+      cal.checked = checked;
+      this.selectedCalendarsChanged.emit();
     }
   }
 

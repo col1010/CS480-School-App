@@ -66,7 +66,7 @@ export class HomePage implements OnInit, OnDestroy {
     const combinedEventList = ([] as Event[]).concat(...eventArrs);
     this.eventList = this.sortEvents(combinedEventList);
     /* Change detection triggered  */
-    this.dateList = Array.from(new Set(this.getEvents().map(event => CalendarService.formatDate(event.startDateObject))));
+    this.dateList = Array.from(new Set(this.getEvents().map(event => event.startDateString)));
   }
 
   sortEvents(events: Event[]) {

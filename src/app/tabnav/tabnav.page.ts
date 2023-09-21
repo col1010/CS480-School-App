@@ -10,17 +10,14 @@ import { Calendar } from '../services/data.service';
   styleUrls: ['./tabnav.page.scss'],
 })
 export class TabnavPage implements OnInit {
-  envCalList: any[];
 
-  constructor(private alertController: AlertController, private calService: CalendarService, private platform: Platform) {
-    this.envCalList = environment.calendars;
-  }
+  constructor(private alertController: AlertController, private calService: CalendarService, private platform: Platform) { }
 
   async ngOnInit() {
     await this.platform.ready();
     if (!localStorage.getItem("firstOpen")) { // first time opening the app
       const defaultCalendarName = 'Independent School District #1';
-      const defaultCalendar = this.envCalList.find((cal) => cal.names.includes(defaultCalendarName));
+      const defaultCalendar = environment.calendars.find((cal) => cal.names.includes(defaultCalendarName));
       if (defaultCalendar) {
         localStorage.setItem(defaultCalendarName, 'checked');
         this.initializeCalendars();
@@ -35,22 +32,16 @@ export class TabnavPage implements OnInit {
     } else {
       this.initializeCalendars();
     }
-    
   }
 
-  initializeCalendars(): Promise<void> {
-    return new Promise<void>(async (resolve) => {
-
-      for (let i = 0; i < this.envCalList.length; i++) {
-        if (localStorage.getItem(this.envCalList[i].names[0]) === "checked") {
-          // console.log(this.envCalList[i].names[0], " is checked!");
-          this.calService.addCalendar(new Calendar(this.envCalList[i].names[0], true));
-        } else {
-          this.calService.addCalendar(new Calendar(this.envCalList[i].names[0], false));
-        }
+  initializeCalendars() {
+    environment.calendars.map((cal) => {
+      if (localStorage.getItem(cal.names[0]) === "checked") {
+        this.calService.addCalendar(new Calendar(cal.names[0], true));
+      } else {
+        this.calService.addCalendar(new Calendar(cal.names[0], false));
       }
-      await this.calService.updateAllCalendars();
-      resolve();
-    })
+    });
+    this.calService.updateAllCalendars();
   }
 }

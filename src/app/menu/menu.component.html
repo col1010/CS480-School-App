@@ -7,7 +7,7 @@
     </ion-header>
     <div *ngFor="let cal of envCalList">
       <ion-item>
-        <ion-checkbox [checked]="localSelectedCalendars.includes(cal.names[0])"
+        <ion-checkbox [checked]="selectedCalendars.includes(cal.names[0])"
           [ngStyle]="{ '--border-color': cal.secondaryColor, '--background-checked': cal.primaryColor }"
           (ionChange)="onCheckboxChange($event, cal)" slot="start"></ion-checkbox>
         <ion-label class="ion-text-wrap">{{ cal.names[0] }}</ion-label>
