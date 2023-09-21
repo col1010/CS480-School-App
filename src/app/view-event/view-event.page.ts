@@ -5,7 +5,6 @@ import { Event } from '../services/data.service';
 import { Calendar as NativeCalendar } from '@awesome-cordova-plugins/calendar/ngx';
 import { ToastController } from '@ionic/angular';
 import { Platform } from '@ionic/angular';
-import { InAppBrowser } from '@awesome-cordova-plugins/in-app-browser/ngx'
 
 
 interface SystemCalendar {
@@ -20,14 +19,14 @@ interface SystemCalendar {
   styleUrls: ['./view-event.page.scss'],
 })
 export class ViewEventPage implements OnInit {
-  public event!: Event;
+  public event: Event | undefined;
   calendarList: SystemCalendar[] = [];
   selectedCalendarId: string = "";
 
   isIOS: boolean = true;
   deviceReady: boolean = false;
 
-  baseGoogleMapsURL = "https://google.com/maps/search/?api=1&query=";
+  baseGoogleMapsURL = "https://www.google.com/maps/search/?api=1&query=";
 
   constructor(
     private calService: CalendarService,
@@ -35,18 +34,17 @@ export class ViewEventPage implements OnInit {
     private calendar: NativeCalendar,
     private toastController: ToastController,
     private platform: Platform,
-    private iab: InAppBrowser
   ) {
     platform.ready().then(() => {
       this.deviceReady = true;
     })
-   }
+  }
 
-  async ngOnInit() {
+  ngOnInit() {
     this.isIOS = this.platform.is("ios");
     const eventId = this.activatedRoute.snapshot.paramMap.get('eventId') as string;
     const calId = this.activatedRoute.snapshot.paramMap.get('calendarId') as string;
-    this.event = await this.calService.getEventById(calId, parseInt(eventId, 10));
+    this.event = this.calService.getEventById(calId, parseInt(eventId, 10));
   }
 
   getBackButtonText() {
@@ -56,20 +54,17 @@ export class ViewEventPage implements OnInit {
   }
 
   async openGoogleMaps(location: string) {
-    const browser = this.iab.create(this.baseGoogleMapsURL + encodeURIComponent(location));
-
+    window.open(this.baseGoogleMapsURL + encodeURIComponent(location));
   }
 
   addEventToNativeCalendarInteractively(event: Event) {
-
-    this.calendar.createEventInteractivelyWithOptions(event.summary, event.location, event.description, event.startDateObject, event.endDateObject, {}).then(
-      () => {
-
-      }, (err) => {
+    this.calendar.createEventInteractivelyWithOptions(event.summary, event.location, event.description,
+      event.startDateObject, event.endDateObject, {})
+      .then(() => { })
+      .catch((err) => {
         this.presentToastNotification("Error creating event! Does the app have permission to access your Calendar?", true);
-        console.log(err);
+        console.error(err);
       });
-
   }
 
   async presentToastNotification(message: string, error: boolean) {
@@ -90,19 +85,5 @@ export class ViewEventPage implements OnInit {
 
   getGoogleCalendarUrl(calId: string): string {
     return `https://calendar.google.com/calendar/r?cid=${calId}`;
-  }
-
-  getCalendarList() {
-    this.calendar.listCalendars()
-      .then(calendars => {
-        this.calendarList = calendars.map((calendar: any) => {
-          //console.log(calendar);
-          return { name: calendar.name, id: calendar.id, isPrimary: calendar.isPrimary };
-        });
-      })
-      .catch(err => {
-        console.error(err);
-        this.presentToastNotification("Error getting calendar list", true);
-      });
   }
 }
