@@ -10,7 +10,7 @@ export interface Post {
   dateObject: Date;
   dateString: string
   url: string;
-  featuredMediaUrl: string | undefined;
+  featuredMediaUrl?: string;
   content: string;
   color: string;
   calendarName: string;
@@ -18,7 +18,7 @@ export interface Post {
 
 export interface Event {
   summary: string;
-  description: string;
+  description?: string;
   calendarName: string;
   calendarId: string;
   primaryColor: string;
@@ -28,7 +28,7 @@ export interface Event {
   startDateObject: Date;
   endDateObject: Date,
   endTimeString?: string;
-  location: string;
+  location?: string;
   id: number;
 }
 
@@ -91,7 +91,6 @@ export class Blog {
       dateObject: new Date(),
       dateString: '',
       url: '',
-      featuredMediaUrl: '',
       content: '',
       color: '',
       calendarName: ''
@@ -106,7 +105,7 @@ export class Calendar {
   primaryColor: string = '';
   secondaryColor: string = '';
   eventLists: Event[][] = [];
-  blog: Blog | undefined;
+  blog?: Blog;
 
   constructor(calendarName: string, checked: boolean) {
 
@@ -201,14 +200,10 @@ export class Calendar {
       calendarId: '',
       primaryColor: '',
       secondaryColor: '',
-      startTimeString: undefined,
       startDateString: '',
       startDateObject: new Date(),
-      endTimeString: undefined,
       endDateObject: new Date(),
-      location: '',
       id: 0,
-      description: ''
     }
   }
 }
